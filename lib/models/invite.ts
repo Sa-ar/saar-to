@@ -1,9 +1,10 @@
 import { model, models, Schema, type Model, type Types } from "mongoose";
+import { USER_ROLE, type UserRole } from "@/lib/user-role";
 
 export type InviteAttrs = {
   token: string;
   createdBy: Types.ObjectId;
-  role: "member";
+  role: UserRole;
   expiresAt: Date;
   usedAt?: Date | null;
   createdAt: Date;
@@ -21,9 +22,9 @@ const inviteSchema = new Schema<InviteAttrs>(
     },
     role: {
       type: String,
-      enum: ["member"],
+      enum: [USER_ROLE.MEMBER],
       required: true,
-      default: "member",
+      default: USER_ROLE.MEMBER,
     },
     expiresAt: { type: Date, required: true },
     usedAt: { type: Date, default: null },

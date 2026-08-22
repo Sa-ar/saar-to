@@ -4,6 +4,9 @@ import { hash } from "bcryptjs";
 import mongoose from "mongoose";
 import { User } from "../lib/models/user";
 import { ensureUserRoles } from "../lib/roles";
+import { CLI_TARGET, type CliTarget } from "../lib/link-enums";
+import { LIMITS } from "../lib/limits";
+import { USER_ROLE } from "../lib/user-role";
 
 function usage() {
   console.error(
@@ -17,14 +20,14 @@ Creates an owner account. Members must register via an invite link.
   );
 }
 
-type Target = "local" | "production";
+type Target = CliTarget;
 
 function parseTarget(value: string | undefined): Target {
-  if (!value || value === "local") {
-    return "local";
+  if (!value || value === CLI_TARGET.LOCAL) {
+    return CLI_TARGET.LOCAL;
   }
-  if (value === "production" || value === "prod") {
-    return "production";
+  if (value === CLI_TARGET.PRODUCTION) {
+    return CLI_TARGET.PRODUCTION;
   }
   console.error(`Unknown --target ${value}. Use local or production.`);
   process.exit(1);
@@ -32,9 +35,9 @@ function parseTarget(value: string | undefined): Target {
 
 function envFileFor(target: Target): string {
   switch (target) {
-    case "local":
+    case CLI_TARGET.LOCAL:
       return ".env.local";
-    case "production":
+    case CLI_TARGET.PRODUCTION:
       return ".env.prod";
     default: {
       const _exhaustive: never = target;
@@ -47,7 +50,7 @@ function loadEnv(target: Target): void {
   const file = envFileFor(target);
   const path = resolve(process.cwd(), file);
   if (!existsSync(path)) {
-    if (target === "production") {
+    if (target === CLI_TARGET.PRODUCTION) {
       console.error("Missing .env.prod. Pull production env from Vercel:\n  npm run env:pull-prod");
     } else {
       console.error("Missing .env.local. Copy .env.example to .env.local.");
@@ -100,8 +103,8 @@ async function main() {
     process.exit(1);
   }
 
-  if (password.length < 8) {
-    console.error("Password must be at least 8 characters.");
+  if (password.length < LIMITS.PASSWORD_MIN) {
+    console.error(`Password must be at least ${LIMITS.PASSWORD_MIN} characters.`);
     process.exit(1);
   }
 
@@ -121,8 +124,8 @@ async function main() {
   const user = await User.create({
     name,
     email,
-    passwordHash: await hash(password, 12),
-    role: "owner",
+    passwordHash: await hash(password, LIMITS.BCRYPT_ROUNDS),
+    role: USER_ROLE.OWNER,
   });
 
   console.log(`Created owner ${user.email} (${user._id.toString()})`);

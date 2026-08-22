@@ -4,7 +4,9 @@ import { del } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { MAX_FILE_BYTES, normalizeDisposition } from "@/lib/file-types";
 import type { ShortUrlAttrs } from "@/lib/models/short-url";
-import type { FileDisposition, FileSource } from "@/lib/types";
+import type { FileDisposition, FileSource, ShortUrlTarget } from "@/lib/types";
+import { FILE_DISPOSITION, FILE_SOURCE, SHORT_URL_TARGET, HOST_LABEL } from "@/lib/link-enums";
+import { HTTP_STATUS } from "@/lib/http";
 
 export {
   ALLOWED_FILE_TYPES,
@@ -77,7 +79,7 @@ export async function assertSafeHttpsUrl(raw: string) {
 
   const hostname = url.hostname.toLowerCase();
   if (
-    hostname === "localhost" ||
+    hostname === HOST_LABEL.LOCALHOST ||
     hostname.endsWith(".localhost") ||
     hostname.endsWith(".local") ||
     hostname === "metadata.google.internal"
@@ -98,7 +100,7 @@ export async function assertSafeHttpsUrl(raw: string) {
 }
 
 async function fetchFileResponse(url: string, source: FileSource) {
-  if (source === "external") {
+  if (source === FILE_SOURCE.EXTERNAL) {
     await assertSafeHttpsUrl(url);
   }
 
@@ -130,22 +132,25 @@ async function fetchFileResponse(url: string, source: FileSource) {
 }
 
 export async function serveFile(doc: ShortUrlAttrs) {
-  const source: FileSource = doc.fileSource === "external" ? "external" : "blob";
+  const source: FileSource =
+    doc.fileSource === FILE_SOURCE.EXTERNAL ? FILE_SOURCE.EXTERNAL : FILE_SOURCE.BLOB;
   const response = await fetchFileResponse(doc.full, source);
   if (!response?.body) {
-    return new NextResponse("File unavailable", { status: 502 });
+    return new NextResponse("File unavailable", { status: HTTP_STATUS.BAD_GATEWAY });
   }
 
   const contentType =
     doc.contentType || response.headers.get("content-type") || "application/octet-stream";
   const disposition = normalizeDisposition(
-    doc.disposition === "attachment" ? "attachment" : "inline",
+    doc.disposition === FILE_DISPOSITION.ATTACHMENT
+      ? FILE_DISPOSITION.ATTACHMENT
+      : FILE_DISPOSITION.INLINE,
     contentType,
   );
   const fileName = doc.fileName?.trim() || "download";
 
   return new NextResponse(response.body, {
-    status: 200,
+    status: HTTP_STATUS.OK,
     headers: {
       "Content-Type": contentType,
       "Content-Disposition": contentDispositionHeader(disposition, fileName),
@@ -173,7 +178,7 @@ export function blobConfigured() {
 export function assignFileTarget(
   doc: {
     full: string;
-    target: "url" | "file";
+    target: ShortUrlTarget;
     disposition?: FileDisposition | null;
     fileName?: string | null;
     contentType?: string | null;
@@ -182,7 +187,7 @@ export function assignFileTarget(
   },
   data: {
     fullUrl: string;
-    target: "url" | "file";
+    target: ShortUrlTarget;
     disposition?: FileDisposition;
     fileName?: string;
     contentType?: string;
@@ -192,13 +197,13 @@ export function assignFileTarget(
 ) {
   doc.full = data.fullUrl;
   doc.target = data.target;
-  if (data.target === "file") {
+  if (data.target === SHORT_URL_TARGET.FILE) {
     const contentType = data.contentType?.trim() || "application/octet-stream";
     doc.disposition = normalizeDisposition(data.disposition, contentType);
     doc.fileName = data.fileName?.trim() || "download";
     doc.contentType = contentType;
     doc.fileSize = data.fileSize ?? null;
-    doc.fileSource = data.fileSource === "blob" ? "blob" : "external";
+    doc.fileSource = data.fileSource === FILE_SOURCE.BLOB ? FILE_SOURCE.BLOB : FILE_SOURCE.EXTERNAL;
     return;
   }
 

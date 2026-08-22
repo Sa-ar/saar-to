@@ -1,0 +1,26 @@
+export const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  FOUND: 302,
+  SEE_OTHER: 303,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  BAD_GATEWAY: 502,
+  UNAVAILABLE: 503,
+  INTERNAL_ERROR: 500,
+} as const;
+
+export const HTTP_REDIRECT = {
+  MIN: 300,
+  MAX: 400,
+} as const;
+
+export const HTTP_METHOD = {
+  GET: "GET",
+  POST: "POST",
+  HEAD: "HEAD",
+  DELETE: "DELETE",
+} as const;

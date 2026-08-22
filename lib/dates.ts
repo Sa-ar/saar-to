@@ -1,7 +1,9 @@
+import { LIMITS } from "@/lib/limits";
+import { MS_PER_DAY } from "@/lib/time";
 import type { DailyClick } from "@/lib/types";
 
 export function utcDateString(date = new Date()) {
-  return date.toISOString().slice(0, 10);
+  return date.toISOString().slice(0, LIMITS.ISO_DATE_LENGTH);
 }
 
 export function isExpired(expiresAt?: Date | string | null) {
@@ -12,7 +14,7 @@ export function isExpired(expiresAt?: Date | string | null) {
   return new Date(expiresAt).getTime() <= Date.now();
 }
 
-const EXPIRING_SOON_WINDOW_MS = 24 * 60 * 60 * 1000;
+const EXPIRING_SOON_WINDOW_MS = MS_PER_DAY;
 
 /** True when a link has an expiry within the next 24h (and hasn't expired). */
 export function isExpiringSoon(

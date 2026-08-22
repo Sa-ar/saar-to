@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LIMITS } from "@/lib/limits";
 
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email("Enter a valid email"),
@@ -6,12 +7,12 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(80, "Name is too long"),
+  name: z.string().trim().min(1, "Name is required").max(LIMITS.NAME_MAX, "Name is too long"),
   email: z.string().trim().toLowerCase().email("Enter a valid email"),
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password is too long"),
+    .min(LIMITS.PASSWORD_MIN, `Password must be at least ${LIMITS.PASSWORD_MIN} characters`)
+    .max(LIMITS.PASSWORD_MAX, "Password is too long"),
   invite: z.string().trim().min(1, "Invite is required"),
 });
 

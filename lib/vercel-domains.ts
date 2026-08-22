@@ -1,4 +1,10 @@
 import { vanityHostname } from "@/lib/hosts";
+import { HTTP_STATUS } from "@/lib/http";
+
+const VERCEL_DOMAIN_ERROR = {
+  ALREADY_IN_USE: "domain_already_in_use",
+  ALREADY_EXISTS: "domain_already_exists",
+} as const;
 
 function vercelConfig() {
   const token = process.env.VERCEL_TOKEN;
@@ -52,9 +58,9 @@ export async function ensureVanityDomain(
   const code = body.error?.code;
   // Already attached is fine
   if (
-    response.status === 409 ||
-    code === "domain_already_in_use" ||
-    code === "domain_already_exists"
+    response.status === HTTP_STATUS.CONFLICT ||
+    code === VERCEL_DOMAIN_ERROR.ALREADY_IN_USE ||
+    code === VERCEL_DOMAIN_ERROR.ALREADY_EXISTS
   ) {
     return { ok: true, provisioned: true };
   }
@@ -81,7 +87,7 @@ export async function removeVanityDomain(label: string): Promise<void> {
     },
   );
 
-  if (response.ok || response.status === 404) {
+  if (response.ok || response.status === HTTP_STATUS.NOT_FOUND) {
     return;
   }
 

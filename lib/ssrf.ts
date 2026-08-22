@@ -1,9 +1,10 @@
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import { Agent, fetch as undiciFetch, type RequestInit as UndiciRequestInit } from "undici";
+import { HOST_LABEL } from "@/lib/link-enums";
 
 const ALLOWED_PROTOCOLS = new Set(["http:", "https:"]);
-const BLOCKED_HOSTNAMES = new Set(["localhost", "metadata.google.internal", "metadata"]);
+const BLOCKED_HOSTNAMES = new Set([HOST_LABEL.LOCALHOST, "metadata.google.internal", "metadata"]);
 
 export type SafeOutboundTarget = {
   url: URL;

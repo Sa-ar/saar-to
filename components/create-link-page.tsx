@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { UrlForm } from "@/components/url-form";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
+import { FORM_LAYOUT } from "@/lib/link-enums";
 
 export function CreateLinkPage({ isOwner = false }: { isOwner?: boolean }) {
   const router = useRouter();
@@ -27,7 +28,7 @@ export function CreateLinkPage({ isOwner = false }: { isOwner?: boolean }) {
       </div>
 
       <UrlForm
-        layout="page"
+        layout={FORM_LAYOUT.PAGE}
         isOwner={isOwner}
         onSaved={() => {
           router.push("/");

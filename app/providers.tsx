@@ -4,6 +4,7 @@ import { dehydrate, hydrate, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import type { ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { LIMITS } from "@/lib/limits";
 import { QUERY_PERSIST_KEY } from "@/lib/query";
 import { makeQueryClient } from "@/lib/query-client";
 
@@ -42,7 +43,7 @@ function getQueryClient() {
         if (browserQueryClient) {
           persist(browserQueryClient);
         }
-      }, 250);
+      }, LIMITS.QUERY_PERSIST_DEBOUNCE_MS);
     });
   }
 

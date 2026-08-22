@@ -1,4 +1,15 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": [".next/**", "out/**", "build/**", "package-lock.json", "next-env.d.ts"]
+  "printWidth": 100,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "ignorePatterns": [
+    ".next/**",
+    "out/**",
+    "build/**",
+    "package-lock.json",
+    "next-env.d.ts",
+    "docs/superpowers/**"
+  ]
 }

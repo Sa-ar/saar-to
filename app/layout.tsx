@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Providers } from "@/app/providers";
 import { SiteHeader } from "@/components/site-header";
+import { APEX_ORIGIN } from "@/lib/urls";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({
@@ -25,7 +26,7 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "saar.to",
   description: "Personal URL shortener — create, track, and share links.",
-  metadataBase: new URL("https://saar.to"),
+  metadataBase: new URL(APEX_ORIGIN),
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

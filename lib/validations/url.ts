@@ -1,6 +1,18 @@
 import { z } from "zod";
 import { isAllowedFileType, mustForceAttachment } from "@/lib/file-types";
 import {
+  FILE_DISPOSITION,
+  FILE_DISPOSITION_VALUES,
+  FILE_SOURCE,
+  FILE_SOURCE_VALUES,
+  HOST_LABEL,
+  SHORT_URL_TARGET,
+  SHORT_URL_TARGET_VALUES,
+  type FileSource,
+  type ShortUrlTarget,
+} from "@/lib/link-enums";
+import { LIMITS } from "@/lib/limits";
+import {
   SHORT_URL_KIND,
   SHORT_URL_KIND_VALUES,
   kindHasPath,
@@ -29,7 +41,7 @@ export const RESERVED_SLUGS = new Set([
   "robots.txt",
   "sitemap.xml",
   "go",
-  "www",
+  HOST_LABEL.WWW,
   "app",
   "mail",
   "admin",
@@ -82,10 +94,10 @@ function addSlugIssues(
     return;
   }
 
-  if (slug.length < 3 || slug.length > 32) {
+  if (slug.length < LIMITS.SLUG_MIN || slug.length > LIMITS.SLUG_MAX) {
     ctx.addIssue({
       code: "custom",
-      message: `${noun} must be 3–32 characters`,
+      message: `${noun} must be ${LIMITS.SLUG_MIN}–${LIMITS.SLUG_MAX} characters`,
       path: ["slug"],
     });
     return;
@@ -128,13 +140,13 @@ function addExpiryIssues(rawExpiresAt: string, ctx: z.RefinementCtx) {
 function addFullUrlIssues(
   data: {
     fullUrl: string;
-    target: "url" | "file";
+    target: ShortUrlTarget;
   },
   ctx: z.RefinementCtx,
 ) {
   const value = data.fullUrl.trim();
 
-  if (data.target === "file") {
+  if (data.target === SHORT_URL_TARGET.FILE) {
     if (value === "") {
       // File-source messaging is handled in addFileIssues first.
       return;
@@ -190,12 +202,12 @@ const baseUrlObject = z.object({
   slug: z.string(),
   expiresAt: z.string(),
   kind: z.enum(SHORT_URL_KIND_VALUES),
-  target: z.enum(["url", "file"]).default("url"),
-  disposition: z.enum(["inline", "attachment"]).optional(),
+  target: z.enum(SHORT_URL_TARGET_VALUES).default(SHORT_URL_TARGET.URL),
+  disposition: z.enum(FILE_DISPOSITION_VALUES).optional(),
   fileName: z.string().optional(),
   contentType: z.string().optional(),
   fileSize: z.number().optional(),
-  fileSource: z.enum(["blob", "external"]).optional(),
+  fileSource: z.enum(FILE_SOURCE_VALUES).optional(),
   note: z.string().optional(),
   password: z.string().optional(),
   removePassword: z.boolean().optional(),
@@ -206,20 +218,20 @@ const baseUrlObject = z.object({
 
 function addFileIssues(
   data: {
-    target: "url" | "file";
+    target: ShortUrlTarget;
     fullUrl: string;
     fileName?: string;
     contentType?: string;
-    fileSource?: "blob" | "external";
+    fileSource?: FileSource;
     fileSize?: number;
   },
   ctx: z.RefinementCtx,
 ) {
-  if (data.target !== "file") {
+  if (data.target !== SHORT_URL_TARGET.FILE) {
     return;
   }
 
-  if (data.fileSource !== "blob" && data.fileSource !== "external") {
+  if (data.fileSource !== FILE_SOURCE.BLOB && data.fileSource !== FILE_SOURCE.EXTERNAL) {
     ctx.addIssue({
       code: "custom",
       message: "Upload a file or paste an https file URL",
@@ -270,24 +282,25 @@ function normalizeSlug(slug: string, kind: ShortUrlKind): string | undefined {
 
 function transformUrlData(data: z.infer<typeof baseUrlObject>) {
   const kind = data.kind;
-  const target = data.target === "file" ? "file" : "url";
+  const target =
+    data.target === SHORT_URL_TARGET.FILE ? SHORT_URL_TARGET.FILE : SHORT_URL_TARGET.URL;
   return {
     fullUrl: data.fullUrl.trim(),
     slug: normalizeSlug(data.slug, kind),
     expiresAt: data.expiresAt.trim() === "" ? undefined : data.expiresAt.trim(),
     kind,
-    target: target === "file" ? ("file" as const) : ("url" as const),
+    target: target === SHORT_URL_TARGET.FILE ? SHORT_URL_TARGET.FILE : SHORT_URL_TARGET.URL,
     disposition:
-      target === "file"
-        ? data.disposition === "attachment"
-          ? ("attachment" as const)
-          : ("inline" as const)
+      target === SHORT_URL_TARGET.FILE
+        ? data.disposition === FILE_DISPOSITION.ATTACHMENT
+          ? FILE_DISPOSITION.ATTACHMENT
+          : FILE_DISPOSITION.INLINE
         : undefined,
-    fileName: target === "file" ? data.fileName?.trim() : undefined,
-    contentType: target === "file" ? data.contentType?.trim() : undefined,
-    fileSize: target === "file" ? data.fileSize : undefined,
-    fileSource: target === "file" ? data.fileSource : undefined,
-    note: data.note?.trim() ? data.note.trim().slice(0, 500) : undefined,
+    fileName: target === SHORT_URL_TARGET.FILE ? data.fileName?.trim() : undefined,
+    contentType: target === SHORT_URL_TARGET.FILE ? data.contentType?.trim() : undefined,
+    fileSize: target === SHORT_URL_TARGET.FILE ? data.fileSize : undefined,
+    fileSource: target === SHORT_URL_TARGET.FILE ? data.fileSource : undefined,
+    note: data.note?.trim() ? data.note.trim().slice(0, LIMITS.NOTE_MAX) : undefined,
     password: data.password?.trim() || undefined,
     removePassword: data.removePassword === true,
     ogTitle: data.ogTitle?.trim() || undefined,
@@ -334,8 +347,13 @@ export function formatFormError(error: unknown) {
     return error;
   }
 
-  if (error && typeof error === "object" && "message" in error) {
-    return String((error as { message: unknown }).message);
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
   }
 
   return "Invalid value";

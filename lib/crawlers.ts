@@ -1,3 +1,4 @@
+import { DEVICE_PLATFORM, type DevicePlatform } from "@/lib/link-enums";
 const SOCIAL_CRAWLER_PATTERNS = [
   /facebookexternalhit/i,
   /facebot/i,
@@ -16,7 +17,7 @@ const SOCIAL_CRAWLER_PATTERNS = [
   /meta-externalagent/i,
 ];
 
-export type ClientPlatform = "android" | "ios" | "other";
+export type ClientPlatform = DevicePlatform | "other";
 
 export function getUserAgent(request: Request): string {
   return request.headers.get("user-agent") ?? "";
@@ -33,12 +34,12 @@ export function isSocialCrawler(userAgent: string): boolean {
 export function getClientPlatform(userAgent: string): ClientPlatform {
   const normalized = userAgent.toLowerCase();
 
-  if (normalized.includes("android")) {
-    return "android";
+  if (normalized.includes(DEVICE_PLATFORM.ANDROID)) {
+    return DEVICE_PLATFORM.ANDROID;
   }
 
   if (normalized.includes("iphone") || normalized.includes("ipad") || normalized.includes("ipod")) {
-    return "ios";
+    return DEVICE_PLATFORM.IOS;
   }
 
   return "other";

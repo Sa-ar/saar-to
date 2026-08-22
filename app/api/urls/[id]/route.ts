@@ -18,6 +18,9 @@ import { hashLinkPassword } from "@/lib/link-gate";
 import { isOwnerRole } from "@/lib/roles";
 import { ensureVanityDomain, removeVanityDomain } from "@/lib/vercel-domains";
 import { refreshShortUrlUnfurlById } from "@/lib/unfurl";
+import { FILE_DISPOSITION, FILE_SOURCE, SHORT_URL_TARGET } from "@/lib/link-enums";
+import { HTTP_STATUS } from "@/lib/http";
+import { LIMITS } from "@/lib/limits";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,14 +32,14 @@ type RouteContext = {
 export async function GET(request: Request, context: RouteContext) {
   const session = await requireSession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: HTTP_STATUS.UNAUTHORIZED });
   }
 
   const { id } = await context.params;
   const url = await loadUrl(id, session.user.id, session.user.role, getBaseUrl(request));
 
   if (!url) {
-    return NextResponse.json({ error: "Short URL not found" }, { status: 404 });
+    return NextResponse.json({ error: "Short URL not found" }, { status: HTTP_STATUS.NOT_FOUND });
   }
 
   return NextResponse.json(url);
@@ -45,14 +48,14 @@ export async function GET(request: Request, context: RouteContext) {
 export async function PATCH(request: Request, context: RouteContext) {
   const session = await requireSession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: HTTP_STATUS.UNAUTHORIZED });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: HTTP_STATUS.BAD_REQUEST });
   }
 
   const { id } = await context.params;
@@ -60,7 +63,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const doc = await findAccessibleShortUrl(id, session.user.id, session.user.role);
 
   if (!doc) {
-    return NextResponse.json({ error: "Short URL not found" }, { status: 404 });
+    return NextResponse.json({ error: "Short URL not found" }, { status: HTTP_STATUS.NOT_FOUND });
   }
 
   const previousKind = shortUrlKind(doc);
@@ -78,7 +81,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   ) {
     return NextResponse.json(
       { error: "Only owners can enable premium subdomain links" },
-      { status: 403 },
+      { status: HTTP_STATUS.FORBIDDEN },
     );
   }
 
@@ -93,16 +96,17 @@ export async function PATCH(request: Request, context: RouteContext) {
     kind,
     target:
       read("target") === undefined
-        ? doc.target === "file"
-          ? "file"
-          : "url"
-        : read("target") === "file"
-          ? "file"
-          : "url",
+        ? doc.target === SHORT_URL_TARGET.FILE
+          ? SHORT_URL_TARGET.FILE
+          : SHORT_URL_TARGET.URL
+        : read("target") === SHORT_URL_TARGET.FILE
+          ? SHORT_URL_TARGET.FILE
+          : SHORT_URL_TARGET.URL,
     disposition:
-      read("disposition") === "attachment" || doc.disposition === "attachment"
-        ? "attachment"
-        : "inline",
+      read("disposition") === FILE_DISPOSITION.ATTACHMENT ||
+      doc.disposition === FILE_DISPOSITION.ATTACHMENT
+        ? FILE_DISPOSITION.ATTACHMENT
+        : FILE_DISPOSITION.INLINE,
     fileName:
       read("fileName") === undefined ? (doc.fileName ?? "") : String(read("fileName") ?? ""),
     contentType:
@@ -111,7 +115,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         : String(read("contentType") ?? ""),
     fileSize: typeof read("fileSize") === "number" ? read("fileSize") : (doc.fileSize ?? undefined),
     fileSource:
-      read("fileSource") === "blob" || read("fileSource") === "external"
+      read("fileSource") === FILE_SOURCE.BLOB || read("fileSource") === FILE_SOURCE.EXTERNAL
         ? read("fileSource")
         : (doc.fileSource ?? undefined),
     note: read("note") === undefined ? (doc.note ?? "") : String(read("note") ?? ""),
@@ -128,7 +132,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   if (!parsed.success) {
     const message = parsed.error.issues[0]?.message ?? "Invalid input";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json({ error: message }, { status: HTTP_STATUS.BAD_REQUEST });
   }
 
   const previousShort = doc.short;
@@ -148,7 +152,7 @@ export async function PATCH(request: Request, context: RouteContext) {
           ? "That subdomain or path is already taken"
           : "That slug is already taken",
       },
-      { status: 409 },
+      { status: HTTP_STATUS.CONFLICT },
     );
   }
 
@@ -160,7 +164,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     doc.kind = parsed.data.kind;
   }
   assignFileTarget(doc, parsed.data);
-  doc.note = parsed.data.note?.trim() ? parsed.data.note.trim().slice(0, 500) : null;
+  doc.note = parsed.data.note?.trim() ? parsed.data.note.trim().slice(0, LIMITS.NOTE_MAX) : null;
   doc.ogTitle = parsed.data.ogTitle ?? null;
   doc.ogDescription = parsed.data.ogDescription ?? null;
   doc.ogImageUrl = parsed.data.ogImageUrl ?? null;
@@ -174,11 +178,14 @@ export async function PATCH(request: Request, context: RouteContext) {
     await doc.save();
   } catch (error) {
     if (isDuplicateKeyError(error)) {
-      return NextResponse.json({ error: "That slug is already taken" }, { status: 409 });
+      return NextResponse.json(
+        { error: "That slug is already taken" },
+        { status: HTTP_STATUS.CONFLICT },
+      );
     }
 
     if (isMongooseValidationError(error)) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: error.message }, { status: HTTP_STATUS.BAD_REQUEST });
     }
 
     throw error;
@@ -204,15 +211,15 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const dto = serializeShortUrl(doc, getBaseUrl(request));
   after(async () => {
-    if (doc.target === "url") {
+    if (doc.target === SHORT_URL_TARGET.URL) {
       await refreshShortUrlUnfurlById(doc._id.toString());
     }
   });
 
   if (
-    previousSource === "blob" &&
+    previousSource === FILE_SOURCE.BLOB &&
     previousFull &&
-    (parsed.data.target !== "file" || parsed.data.fullUrl !== previousFull)
+    (parsed.data.target !== SHORT_URL_TARGET.FILE || parsed.data.fullUrl !== previousFull)
   ) {
     await deleteStoredBlob(previousFull);
   }
@@ -224,7 +231,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 export async function DELETE(_request: Request, context: RouteContext) {
   const session = await requireSession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: HTTP_STATUS.UNAUTHORIZED });
   }
 
   const { id } = await context.params;
@@ -232,12 +239,12 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const doc = await findAccessibleShortUrl(id, session.user.id, session.user.role);
 
   if (!doc) {
-    return NextResponse.json({ error: "Short URL not found" }, { status: 404 });
+    return NextResponse.json({ error: "Short URL not found" }, { status: HTTP_STATUS.NOT_FOUND });
   }
 
   const kind = shortUrlKind(doc);
   const label = doc.short;
-  const blobUrl = doc.fileSource === "blob" ? doc.full : null;
+  const blobUrl = doc.fileSource === FILE_SOURCE.BLOB ? doc.full : null;
   await doc.deleteOne();
 
   if (blobUrl) {

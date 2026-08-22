@@ -1,14 +1,15 @@
 import type { ShortUrlDto } from "@/lib/types";
+import { LINK_STATUS_FILTER, type LinkStatusFilter } from "@/lib/link-enums";
 
-export type LinkStatusFilter = "all" | "active" | "expired";
+export type { LinkStatusFilter };
 
 export function matchesStatus(url: ShortUrlDto, status: LinkStatusFilter) {
   switch (status) {
-    case "all":
+    case LINK_STATUS_FILTER.ALL:
       return true;
-    case "active":
+    case LINK_STATUS_FILTER.ACTIVE:
       return !url.expired;
-    case "expired":
+    case LINK_STATUS_FILTER.EXPIRED:
       return url.expired;
     default: {
       const exhaustive: never = status;

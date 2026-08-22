@@ -232,8 +232,9 @@ On Vercel **Preview** deployments, leave `NEXTAUTH_URL` and `NEXT_PUBLIC_BASE_UR
 npm run dev            # development server at http://localhost:3000
 npm run build          # production build
 npm start              # serve the production build
-npm run lint           # Oxlint
+npm run lint           # Oxlint (type-aware)
 npm run format         # Oxfmt
+npm run check          # lint + format check
 npm run create-user    # create an owner account (see Getting started)
 npm run env:pull-prod  # write Vercel production env into .env.prod
 ```

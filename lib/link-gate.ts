@@ -3,9 +3,11 @@ import { compare, hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { SHORT_URL_KIND, type PublicHitKind } from "@/lib/kinds";
 import type { ShortUrlAttrs } from "@/lib/models/short-url";
+import { HTTP_STATUS } from "@/lib/http";
+import { NODE_ENV } from "@/lib/link-enums";
+import { LIMITS, UNLOCK_COOKIE_MAX_AGE_SECONDS } from "@/lib/limits";
 
 const COOKIE_PREFIX = "saar_unlock_";
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 function signingSecret() {
   return process.env.NEXTAUTH_SECRET || "dev-unlock-secret";
@@ -20,7 +22,7 @@ function cookieValue(id: string) {
 }
 
 export async function hashLinkPassword(password: string) {
-  return hash(password, 12);
+  return hash(password, LIMITS.BCRYPT_ROUNDS);
 }
 
 export function hasUnlockCookie(request: Request, id: string) {
@@ -97,7 +99,7 @@ export function unlockPage(shortLabel: string, actionPath: string, invalid = fal
 </html>`;
 
   return new NextResponse(html, {
-    status: invalid ? 401 : 200,
+    status: invalid ? HTTP_STATUS.UNAUTHORIZED : HTTP_STATUS.OK,
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 }
@@ -108,9 +110,9 @@ export function setUnlockCookie(response: NextResponse, id: string) {
     value: cookieValue(id),
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === NODE_ENV.PRODUCTION,
     path: "/",
-    maxAge: COOKIE_MAX_AGE,
+    maxAge: UNLOCK_COOKIE_MAX_AGE_SECONDS,
   });
 }
 
