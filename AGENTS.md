@@ -10,6 +10,7 @@
 - Keep app pages on the same content width as the header; dialogs can stay narrower.
 - QR codes should be copyable and downloadable images (not display-only).
 - Default cursor for buttons should be pointer.
+- Prefer shared const objects over magic string unions (for example `SHORT_URL_KIND` in `lib/kinds.ts`) and enforce that with lint.
 
 ## Learned Workspace Facts
 
@@ -17,12 +18,14 @@
 - GitHub repo is public `Sa-ar/saar-to` (local clone directory may still be `node-url-shortener`); `master` is PR-only.
 - Production stack decision: Vercel Hobby for the app, MongoDB Atlas M0 for the database; details live in `docs/production.md`.
 - Local auth uses `NEXTAUTH_URL=http://localhost:3000`; production uses `https://saar.to`; preview leaves `NEXTAUTH_URL` unset and uses `VERCEL_URL`.
-- Production and Preview both need `NEXTAUTH_SECRET` and `MONGODB_URI` on Vercel; never commit `.env.local` or secrets.
+- Production and Preview need `NEXTAUTH_SECRET`, `MONGODB_URI`, and `BLOB_READ_WRITE_TOKEN` on Vercel; never commit `.env.local` or secrets.
 - Owner invites, auth, vanity `slug.saar.to` redirects, ClickEvent analytics, file destinations, QR/notes, and OG/password gates are shipped.
 - Do not build a registrar DNS panel or mixed-record subdomain manager into saar.to; DNS for other domains stays at the registrar (Cloudflare nameservers if they want easier DNS UX).
 - Owners are bootstrapped only via CLI (`npm run create-user`); public registration is invite-only for members; owners see all links/clicks, members only their own.
 - Keep apex `saar.to` as the primary Vercel domain (avoid forcing traffic to `www`).
 - Atlas Network Access must allow Vercel Hobby egress (`0.0.0.0/0` on M0) or sign-in and redirects fail; scope the Vercel DB user to `readWrite` on `url-shortener` only and IP-restrict any admin/CLI Atlas user.
+- File destinations upload through `/api/blob/upload` to the linked public Blob store (`saar-to-files`) or accept a pasted https file URL; each link chooses Open vs Download.
+- Owners can attach the same destination to both `saar.to/slug` and `slug.saar.to` (`SHORT_URL_KIND.BOTH`).
 
 ## Cursor Cloud specific instructions
 
