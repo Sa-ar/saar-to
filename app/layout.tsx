@@ -28,9 +28,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://saar.to"),
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html
       lang="en"

@@ -15,10 +15,9 @@ export async function POST(request: Request) {
   if (!blobConfigured()) {
     return NextResponse.json(
       {
-        error:
-          "File uploads need BLOB_READ_WRITE_TOKEN. Paste an https file URL instead.",
+        error: "File uploads need BLOB_READ_WRITE_TOKEN. Paste an https file URL instead.",
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -44,8 +43,7 @@ export async function POST(request: Request) {
     });
     return NextResponse.json(jsonResponse);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Upload could not start";
+    const message = error instanceof Error ? error.message : "Upload could not start";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

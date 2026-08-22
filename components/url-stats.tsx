@@ -13,13 +13,7 @@ import { QrDialog } from "@/components/qr-dialog";
 import { EmptyState, ErrorState, LoadingState } from "@/components/query-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -63,12 +57,8 @@ export function UrlStats({ code }: { code: string }) {
     if (notFound) {
       return (
         <PageShell className="items-center justify-center gap-4 text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">
-            saar.to
-          </p>
-          <h1 className="font-heading text-3xl font-semibold tracking-tight">
-            Link not found
-          </h1>
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">saar.to</p>
+          <h1 className="font-heading text-3xl font-semibold tracking-tight">Link not found</h1>
           <p className="text-muted-foreground">
             This short URL does not exist or could not be loaded.
           </p>
@@ -83,20 +73,12 @@ export function UrlStats({ code }: { code: string }) {
       <PageShell className="items-center justify-center">
         <ErrorState
           title="Could not load stats"
-          message={
-            query.error instanceof Error
-              ? query.error.message
-              : "Request failed"
-          }
+          message={query.error instanceof Error ? query.error.message : "Request failed"}
           onRetry={() => {
             void query.refetch();
           }}
           action={
-            <Button
-              variant="outline"
-              className="rounded-full"
-              render={<Link href="/" />}
-            >
+            <Button variant="outline" className="rounded-full" render={<Link href="/" />}>
               Back to home
             </Button>
           }
@@ -112,9 +94,7 @@ export function UrlStats({ code }: { code: string }) {
     <PageShell className="gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-3">
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">
-            saar.to
-          </p>
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">saar.to</p>
           <h1 className="font-heading text-3xl font-semibold tracking-tight">
             {url.kind === SHORT_URL_KIND.PATH
               ? url.short
@@ -192,11 +172,7 @@ export function UrlStats({ code }: { code: string }) {
           ) : clicksQuery.isError ? (
             <ErrorState
               title="Could not load click history"
-              message={
-                clicksQuery.error instanceof Error
-                  ? clicksQuery.error.message
-                  : undefined
-              }
+              message={clicksQuery.error instanceof Error ? clicksQuery.error.message : undefined}
               onRetry={() => {
                 void clicksQuery.refetch();
               }}
@@ -247,26 +223,17 @@ export function UrlStats({ code }: { code: string }) {
               <TableBody>
                 {clicks.recent.map((hit) => (
                   <TableRow key={hit.id}>
-                    <TableCell className="whitespace-nowrap">
-                      {formatDate(hit.createdAt)}
-                    </TableCell>
+                    <TableCell className="whitespace-nowrap">{formatDate(hit.createdAt)}</TableCell>
                     <TableCell>
-                      {[hit.city, hit.country].filter(Boolean).join(", ") ||
-                        "(unknown)"}
+                      {[hit.city, hit.country].filter(Boolean).join(", ") || "(unknown)"}
                     </TableCell>
                     <TableCell>{hit.deviceType || "—"}</TableCell>
                     <TableCell>
-                      {[hit.browser, hit.browserVersion]
-                        .filter(Boolean)
-                        .join(" ") || "—"}
+                      {[hit.browser, hit.browserVersion].filter(Boolean).join(" ") || "—"}
                     </TableCell>
-                    <TableCell className="max-w-[10rem] truncate">
-                      {hit.referrerHost}
-                    </TableCell>
+                    <TableCell className="max-w-[10rem] truncate">{hit.referrerHost}</TableCell>
                     <TableCell className="font-mono text-xs">{hit.ip || "—"}</TableCell>
-                    <TableCell>
-                      {hit.isBot ? <Badge variant="outline">Bot</Badge> : "—"}
-                    </TableCell>
+                    <TableCell>{hit.isBot ? <Badge variant="outline">Bot</Badge> : "—"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

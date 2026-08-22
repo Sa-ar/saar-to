@@ -9,13 +9,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const chartConfig = {
   count: {
@@ -34,18 +28,8 @@ export function ClicksChart({ daily }: { daily: DailyClick[] }) {
     <ChartContainer config={chartConfig} className="aspect-auto h-56 w-full">
       <BarChart data={data} margin={{ left: 0, right: 8, top: 8 }}>
         <CartesianGrid vertical={false} />
-        <XAxis
-          dataKey="label"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-        />
-        <YAxis
-          allowDecimals={false}
-          tickLine={false}
-          axisLine={false}
-          width={28}
-        />
+        <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
+        <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} />
         <ChartTooltip content={<ChartTooltipContent hideLabel />} />
         <Bar dataKey="count" fill="var(--color-count)" radius={4} />
       </BarChart>
@@ -53,13 +37,7 @@ export function ClicksChart({ daily }: { daily: DailyClick[] }) {
   );
 }
 
-export function BreakdownList({
-  title,
-  rows,
-}: {
-  title: string;
-  rows: BreakdownRow[];
-}) {
+export function BreakdownList({ title, rows }: { title: string; rows: BreakdownRow[] }) {
   const max = Math.max(1, ...rows.map((row) => row.count));
 
   return (
@@ -77,9 +55,7 @@ export function BreakdownList({
               <li key={row.label} className="grid gap-1">
                 <div className="flex items-center justify-between gap-2 text-sm">
                   <span className="truncate">{row.label}</span>
-                  <span className="tabular-nums text-muted-foreground">
-                    {row.count}
-                  </span>
+                  <span className="tabular-nums text-muted-foreground">{row.count}</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                   <div

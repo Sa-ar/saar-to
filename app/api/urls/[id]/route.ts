@@ -11,11 +11,7 @@ import {
   serializeShortUrl,
   shortUrlKind,
 } from "@/lib/urls";
-import {
-  SHORT_URL_KIND,
-  kindHasSubdomain,
-  parseShortUrlKind,
-} from "@/lib/kinds";
+import { SHORT_URL_KIND, kindHasSubdomain, parseShortUrlKind } from "@/lib/kinds";
 import { editUrlSchema } from "@/lib/validations/url";
 import { assignFileTarget, deleteStoredBlob } from "@/lib/files";
 import { hashLinkPassword } from "@/lib/link-gate";
@@ -37,12 +33,7 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  const url = await loadUrl(
-    id,
-    session.user.id,
-    session.user.role,
-    getBaseUrl(request)
-  );
+  const url = await loadUrl(id, session.user.id, session.user.role, getBaseUrl(request));
 
   if (!url) {
     return NextResponse.json({ error: "Short URL not found" }, { status: 404 });
@@ -66,11 +57,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const { id } = await context.params;
   await connectDB({ waitForEnsure: true });
-  const doc = await findAccessibleShortUrl(
-    id,
-    session.user.id,
-    session.user.role
-  );
+  const doc = await findAccessibleShortUrl(id, session.user.id, session.user.role);
 
   if (!doc) {
     return NextResponse.json({ error: "Short URL not found" }, { status: 404 });
@@ -91,21 +78,18 @@ export async function PATCH(request: Request, context: RouteContext) {
   ) {
     return NextResponse.json(
       { error: "Only owners can enable premium subdomain links" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
   // Non-owners cannot change kind away from path.
   const kind =
-    isOwnerRole(session.user.role) || nextKind === SHORT_URL_KIND.PATH
-      ? nextKind
-      : previousKind;
+    isOwnerRole(session.user.role) || nextKind === SHORT_URL_KIND.PATH ? nextKind : previousKind;
 
   const parsed = editUrlSchema.safeParse({
     fullUrl: read("fullUrl"),
     slug: read("slug") === undefined ? doc.short : String(read("slug") ?? ""),
-    expiresAt:
-      read("expiresAt") === undefined ? "" : String(read("expiresAt") ?? ""),
+    expiresAt: read("expiresAt") === undefined ? "" : String(read("expiresAt") ?? ""),
     kind,
     target:
       read("target") === undefined
@@ -120,39 +104,26 @@ export async function PATCH(request: Request, context: RouteContext) {
         ? "attachment"
         : "inline",
     fileName:
-      read("fileName") === undefined
-        ? (doc.fileName ?? "")
-        : String(read("fileName") ?? ""),
+      read("fileName") === undefined ? (doc.fileName ?? "") : String(read("fileName") ?? ""),
     contentType:
       read("contentType") === undefined
         ? (doc.contentType ?? "")
         : String(read("contentType") ?? ""),
-    fileSize:
-      typeof read("fileSize") === "number"
-        ? read("fileSize")
-        : (doc.fileSize ?? undefined),
+    fileSize: typeof read("fileSize") === "number" ? read("fileSize") : (doc.fileSize ?? undefined),
     fileSource:
       read("fileSource") === "blob" || read("fileSource") === "external"
         ? read("fileSource")
         : (doc.fileSource ?? undefined),
-    note:
-      read("note") === undefined
-        ? (doc.note ?? "")
-        : String(read("note") ?? ""),
+    note: read("note") === undefined ? (doc.note ?? "") : String(read("note") ?? ""),
     password: String(read("password") ?? ""),
     removePassword: read("removePassword") === true,
-    ogTitle:
-      read("ogTitle") === undefined
-        ? (doc.ogTitle ?? "")
-        : String(read("ogTitle") ?? ""),
+    ogTitle: read("ogTitle") === undefined ? (doc.ogTitle ?? "") : String(read("ogTitle") ?? ""),
     ogDescription:
       read("ogDescription") === undefined
         ? (doc.ogDescription ?? "")
         : String(read("ogDescription") ?? ""),
     ogImageUrl:
-      read("ogImageUrl") === undefined
-        ? (doc.ogImageUrl ?? "")
-        : String(read("ogImageUrl") ?? ""),
+      read("ogImageUrl") === undefined ? (doc.ogImageUrl ?? "") : String(read("ogImageUrl") ?? ""),
   });
 
   if (!parsed.success) {
@@ -177,13 +148,11 @@ export async function PATCH(request: Request, context: RouteContext) {
           ? "That subdomain or path is already taken"
           : "That slug is already taken",
       },
-      { status: 409 }
+      { status: 409 },
     );
   }
 
-  doc.expiresAt = parsed.data.expiresAt
-    ? new Date(parsed.data.expiresAt)
-    : null;
+  doc.expiresAt = parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null;
   if (shortChanged) {
     doc.short = nextShort;
   }
@@ -191,9 +160,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     doc.kind = parsed.data.kind;
   }
   assignFileTarget(doc, parsed.data);
-  doc.note = parsed.data.note?.trim()
-    ? parsed.data.note.trim().slice(0, 500)
-    : null;
+  doc.note = parsed.data.note?.trim() ? parsed.data.note.trim().slice(0, 500) : null;
   doc.ogTitle = parsed.data.ogTitle ?? null;
   doc.ogDescription = parsed.data.ogDescription ?? null;
   doc.ogImageUrl = parsed.data.ogImageUrl ?? null;
@@ -207,10 +174,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     await doc.save();
   } catch (error) {
     if (isDuplicateKeyError(error)) {
-      return NextResponse.json(
-        { error: "That slug is already taken" },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: "That slug is already taken" }, { status: 409 });
     }
 
     if (isMongooseValidationError(error)) {
@@ -265,11 +229,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
 
   const { id } = await context.params;
   await connectDB({ waitForEnsure: true });
-  const doc = await findAccessibleShortUrl(
-    id,
-    session.user.id,
-    session.user.role
-  );
+  const doc = await findAccessibleShortUrl(id, session.user.id, session.user.role);
 
   if (!doc) {
     return NextResponse.json({ error: "Short URL not found" }, { status: 404 });

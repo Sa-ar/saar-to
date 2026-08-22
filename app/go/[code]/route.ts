@@ -5,10 +5,7 @@ import { SHORT_URL_KIND } from "@/lib/kinds";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-async function handle(
-  request: Request,
-  context: { params: Promise<{ code: string }> }
-) {
+async function handle(request: Request, context: { params: Promise<{ code: string }> }) {
   const { code } = await context.params;
   const response = await handlePublicRequest(request, code, SHORT_URL_KIND.SUBDOMAIN);
   if (!response) {

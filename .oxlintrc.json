@@ -1,0 +1,37 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "react", "nextjs", "import", "jsx-a11y", "node"],
+  "jsPlugins": ["./oxlint-plugin-saar-to.mjs"],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": [".next/**", "out/**", "build/**", "next-env.d.ts"],
+  "env": {
+    "builtin": true
+  },
+  "rules": {
+    "jsx-a11y/anchor-has-content": "off",
+    "jsx-a11y/control-has-associated-label": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "typescript/no-base-to-string": "off",
+    "typescript/restrict-template-expressions": "off"
+  },
+  "settings": {
+    "next": {
+      "rootDir": "."
+    },
+    "react": {
+      "version": "19.2.8"
+    }
+  },
+  "overrides": [
+    {
+      "files": ["**/*.{ts,tsx}"],
+      "excludeFiles": ["lib/kinds.ts"],
+      "rules": {
+        "saar-to/no-magic-kind": "error"
+      }
+    }
+  ]
+}

@@ -34,13 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -122,8 +116,7 @@ export function UrlTable({
           enableSorting: false,
           cell: (info) => {
             const row = info.row.original;
-            const label =
-              row.target === "file" ? row.fileName || row.full : row.full;
+            const label = row.target === "file" ? row.fileName || row.full : row.full;
             return (
               <div className="flex flex-col gap-1">
                 <a
@@ -195,9 +188,7 @@ export function UrlTable({
                 header: "Creator",
                 enableSorting: false,
                 cell: (info) => (
-                  <span className="text-sm text-muted-foreground">
-                    {info.getValue() || "—"}
-                  </span>
+                  <span className="text-sm text-muted-foreground">{info.getValue() || "—"}</span>
                 ),
               }),
             ]
@@ -221,10 +212,7 @@ export function UrlTable({
               <div className="flex flex-col items-start gap-1">
                 <span>{formatDate(row.expiresAt)}</span>
                 {isExpiringSoon(row.expiresAt) ? (
-                  <Badge
-                    variant="outline"
-                    className="border-amber-500/50 text-amber-500"
-                  >
+                  <Badge variant="outline" className="border-amber-500/50 text-amber-500">
                     Expiring soon
                   </Badge>
                 ) : null}
@@ -298,7 +286,7 @@ export function UrlTable({
           },
         }),
       ]),
-    [copiedId, isOwner, queryClient]
+    [copiedId, isOwner, queryClient],
   );
 
   const table = useTable({
@@ -325,11 +313,7 @@ export function UrlTable({
         {isPending ? (
           <LoadingState label="Loading links…" />
         ) : isError ? (
-          <ErrorState
-            title="Could not load links"
-            message={errorMessage}
-            onRetry={onRetry}
-          />
+          <ErrorState title="Could not load links" message={errorMessage} onRetry={onRetry} />
         ) : !hasLinks ? (
           <EmptyState
             icon={

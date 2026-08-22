@@ -8,13 +8,7 @@ import { formatFormError } from "@/lib/validations/url";
 import { loginSchema } from "@/lib/validations/auth";
 import { FormField } from "@/components/form-field";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 export function LoginForm() {
@@ -53,13 +47,9 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="gap-3">
-        <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">
-          saar.to
-        </p>
+        <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">saar.to</p>
         <CardTitle className="font-heading text-3xl">Sign in</CardTitle>
-        <CardDescription>
-          Use your email and password to manage saar.to links.
-        </CardDescription>
+        <CardDescription>Use your email and password to manage saar.to links.</CardDescription>
       </CardHeader>
       <CardContent>
         <form

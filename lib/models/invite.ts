@@ -28,9 +28,8 @@ const inviteSchema = new Schema<InviteAttrs>(
     expiresAt: { type: Date, required: true },
     usedAt: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Invite =
-  (models.Invite as Model<InviteAttrs> | undefined) ??
-  model<InviteAttrs>("Invite", inviteSchema);
+  (models.Invite as Model<InviteAttrs> | undefined) ?? model<InviteAttrs>("Invite", inviteSchema);

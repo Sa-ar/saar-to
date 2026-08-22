@@ -18,7 +18,7 @@ export function serializeInvite(
     expiresAt: Date;
     createdAt: Date;
   },
-  baseUrl: string
+  baseUrl: string,
 ): InviteDto {
   return {
     id: doc._id.toString(),
@@ -86,6 +86,6 @@ export async function consumeInvite(token: string) {
       expiresAt: { $gt: new Date() },
     },
     { $set: { usedAt: new Date() } },
-    { new: true }
+    { new: true },
   );
 }

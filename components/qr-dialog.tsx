@@ -18,7 +18,7 @@ function qrFileName(shortUrl: string) {
     const host = parsed.hostname.replace(/^www\./i, "");
     const label =
       host.endsWith(".saar.to") && host !== "saar.to"
-        ? host.slice(0, -(".saar.to".length))
+        ? host.slice(0, -".saar.to".length)
         : parsed.pathname.replace(/^\//, "") || "link";
     return `saar-to-${label}.png`;
   } catch {
@@ -60,9 +60,7 @@ export function QrDialog({
     try {
       const blob = await canvasPngBlob(canvas);
       try {
-        await navigator.clipboard.write([
-          new ClipboardItem({ "image/png": blob }),
-        ]);
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       } catch {
         await navigator.clipboard.write([
           new ClipboardItem({ "image/png": Promise.resolve(blob) }),
@@ -98,9 +96,7 @@ export function QrDialog({
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>QR code</DialogTitle>
-          <DialogDescription className="font-mono text-xs break-all">
-            {shortUrl}
-          </DialogDescription>
+          <DialogDescription className="font-mono text-xs break-all">{shortUrl}</DialogDescription>
         </DialogHeader>
         {url ? (
           <div className="grid gap-4">

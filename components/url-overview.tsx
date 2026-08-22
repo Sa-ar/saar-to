@@ -1,10 +1,5 @@
 import type { StatsOverviewDto } from "@/lib/types";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function UrlOverview({
@@ -46,9 +41,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
         <CardDescription className="font-mono text-[11px] uppercase tracking-[0.18em]">
           {label}
         </CardDescription>
-        <CardTitle className="font-heading text-3xl tabular-nums">
-          {value}
-        </CardTitle>
+        <CardTitle className="font-heading text-3xl tabular-nums">{value}</CardTitle>
       </CardHeader>
     </Card>
   );

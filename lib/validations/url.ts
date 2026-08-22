@@ -56,15 +56,11 @@ function addSlugIssues(
   rawSlug: string,
   kind: ShortUrlKind,
   ctx: z.RefinementCtx,
-  required: boolean
+  required: boolean,
 ) {
   const slug = rawSlug.trim();
   const needsSubdomainRules = kindHasSubdomain(kind);
-  const noun = needsSubdomainRules
-    ? kind === SHORT_URL_KIND.BOTH
-      ? "Slug"
-      : "Subdomain"
-    : "Slug";
+  const noun = needsSubdomainRules ? (kind === SHORT_URL_KIND.BOTH ? "Slug" : "Subdomain") : "Slug";
 
   if (slug === "") {
     if (required || needsSubdomainRules) {
@@ -134,7 +130,7 @@ function addFullUrlIssues(
     fullUrl: string;
     target: "url" | "file";
   },
-  ctx: z.RefinementCtx
+  ctx: z.RefinementCtx,
 ) {
   const value = data.fullUrl.trim();
 
@@ -217,7 +213,7 @@ function addFileIssues(
     fileSource?: "blob" | "external";
     fileSize?: number;
   },
-  ctx: z.RefinementCtx
+  ctx: z.RefinementCtx,
 ) {
   if (data.target !== "file") {
     return;
@@ -249,11 +245,7 @@ function addFileIssues(
   }
 
   const contentType = data.contentType?.trim() ?? "";
-  if (
-    contentType &&
-    !isAllowedFileType(contentType) &&
-    mustForceAttachment(contentType)
-  ) {
+  if (contentType && !isAllowedFileType(contentType) && mustForceAttachment(contentType)) {
     ctx.addIssue({
       code: "custom",
       message: "That file type is not allowed",
@@ -282,8 +274,7 @@ function transformUrlData(data: z.infer<typeof baseUrlObject>) {
   return {
     fullUrl: data.fullUrl.trim(),
     slug: normalizeSlug(data.slug, kind),
-    expiresAt:
-      data.expiresAt.trim() === "" ? undefined : data.expiresAt.trim(),
+    expiresAt: data.expiresAt.trim() === "" ? undefined : data.expiresAt.trim(),
     kind,
     target: target === "file" ? ("file" as const) : ("url" as const),
     disposition:

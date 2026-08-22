@@ -138,16 +138,16 @@ Edit an existing link's destination and slug, then try to rename it to a reserve
 
 ## Tech stack
 
-| Layer | Choice |
-|-------|--------|
-| Framework | [Next.js 16](https://nextjs.org) App Router (React 19, TypeScript) |
-| Styling | Tailwind CSS v4 + [shadcn/ui](https://ui.shadcn.com) (Base UI primitives) |
-| Data fetching / forms / tables | [TanStack](https://tanstack.com) Query, Form, and Table |
-| Auth | [NextAuth](https://next-auth.js.org) credentials (JWT sessions) |
-| Database | [MongoDB](https://www.mongodb.com) with [Mongoose](https://mongoosejs.com) |
-| Validation | [Zod](https://zod.dev) |
-| Codes | [nanoid](https://github.com/ai/nanoid) (7-char auto slugs) |
-| Hosting | Vercel (app) + MongoDB Atlas (database) |
+| Layer                          | Choice                                                                     |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| Framework                      | [Next.js 16](https://nextjs.org) App Router (React 19, TypeScript)         |
+| Styling                        | Tailwind CSS v4 + [shadcn/ui](https://ui.shadcn.com) (Base UI primitives)  |
+| Data fetching / forms / tables | [TanStack](https://tanstack.com) Query, Form, and Table                    |
+| Auth                           | [NextAuth](https://next-auth.js.org) credentials (JWT sessions)            |
+| Database                       | [MongoDB](https://www.mongodb.com) with [Mongoose](https://mongoosejs.com) |
+| Validation                     | [Zod](https://zod.dev)                                                     |
+| Codes                          | [nanoid](https://github.com/ai/nanoid) (7-char auto slugs)                 |
+| Hosting                        | Vercel (app) + MongoDB Atlas (database)                                    |
 
 ---
 
@@ -167,7 +167,7 @@ Edit an existing link's destination and slug, then try to rename it to a reserve
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - A MongoDB instance (local `mongod`/Docker for development, or Atlas)
 
 ### 1. Install & configure
@@ -213,14 +213,14 @@ Sign in at `/login`. From the dashboard, use **Invite** to copy a one-time regis
 
 ## Environment variables
 
-| Variable | Purpose | Local | Production |
-|----------|---------|-------|------------|
-| `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/url-shortener` | Atlas `mongodb+srv://…/url-shortener` |
-| `NEXT_PUBLIC_BASE_URL` | Public origin used to build short links | `http://localhost:3000` | `https://saar.to` |
-| `NEXTAUTH_URL` | App origin NextAuth signs against | `http://localhost:3000` | `https://saar.to` |
-| `NEXTAUTH_SECRET` | Secret used to sign sessions | any long random string | long random secret |
-| `VERCEL_TOKEN` / `VERCEL_PROJECT_ID` / `VERCEL_TEAM_ID` | _(optional)_ auto-attach `slug.saar.to` premium domains | usually unset | set to enable premium subdomains |
-| `BLOB_READ_WRITE_TOKEN` | _(optional)_ Vercel Blob uploads for file links | usually unset | set to enable file uploads |
+| Variable                                                | Purpose                                                 | Local                                     | Production                            |
+| ------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------- | ------------------------------------- |
+| `MONGODB_URI`                                           | MongoDB connection string                               | `mongodb://127.0.0.1:27017/url-shortener` | Atlas `mongodb+srv://…/url-shortener` |
+| `NEXT_PUBLIC_BASE_URL`                                  | Public origin used to build short links                 | `http://localhost:3000`                   | `https://saar.to`                     |
+| `NEXTAUTH_URL`                                          | App origin NextAuth signs against                       | `http://localhost:3000`                   | `https://saar.to`                     |
+| `NEXTAUTH_SECRET`                                       | Secret used to sign sessions                            | any long random string                    | long random secret                    |
+| `VERCEL_TOKEN` / `VERCEL_PROJECT_ID` / `VERCEL_TEAM_ID` | _(optional)_ auto-attach `slug.saar.to` premium domains | usually unset                             | set to enable premium subdomains      |
+| `BLOB_READ_WRITE_TOKEN`                                 | _(optional)_ Vercel Blob uploads for file links         | usually unset                             | set to enable file uploads            |
 
 On Vercel **Preview** deployments, leave `NEXTAUTH_URL` and `NEXT_PUBLIC_BASE_URL` unset so the app uses `VERCEL_URL`. Never commit `.env.local` or secrets.
 
@@ -232,7 +232,8 @@ On Vercel **Preview** deployments, leave `NEXTAUTH_URL` and `NEXT_PUBLIC_BASE_UR
 npm run dev            # development server at http://localhost:3000
 npm run build          # production build
 npm start              # serve the production build
-npm run lint           # ESLint
+npm run lint           # Oxlint
+npm run format         # Oxfmt
 npm run create-user    # create an owner account (see Getting started)
 npm run env:pull-prod  # write Vercel production env into .env.prod
 ```
@@ -241,18 +242,18 @@ npm run env:pull-prod  # write Vercel production env into .env.prod
 
 ## Routes & API
 
-| Path | Method | Access | Description |
-|------|--------|--------|-------------|
-| `/login` | GET | public | Sign in |
-| `/register?invite=…` | GET | invite | Create a member account (invite required) |
-| `/` | GET | auth | Dashboard: stats, link table, create modal |
-| `/stats/[code]` | GET | owner of link (owner: any) | Per-link stats & 14-day history |
-| `/[code]` | GET | public | Redirect; 404 if missing or expired |
-| `/api/register` | POST | invite | Create a member (valid invite required) |
-| `/api/invites` | GET · POST | owner | List or create invites |
-| `/api/invites/[id]` | DELETE | owner | Revoke an invite |
-| `/api/urls` | GET · POST | auth | List your URLs · create a short URL |
-| `/api/urls/[id]` | GET · PATCH · DELETE | owner of link (owner: any) | Fetch · **edit** · delete a short URL |
+| Path                 | Method               | Access                     | Description                                |
+| -------------------- | -------------------- | -------------------------- | ------------------------------------------ |
+| `/login`             | GET                  | public                     | Sign in                                    |
+| `/register?invite=…` | GET                  | invite                     | Create a member account (invite required)  |
+| `/`                  | GET                  | auth                       | Dashboard: stats, link table, create modal |
+| `/stats/[code]`      | GET                  | owner of link (owner: any) | Per-link stats & 14-day history            |
+| `/[code]`            | GET                  | public                     | Redirect; 404 if missing or expired        |
+| `/api/register`      | POST                 | invite                     | Create a member (valid invite required)    |
+| `/api/invites`       | GET · POST           | owner                      | List or create invites                     |
+| `/api/invites/[id]`  | DELETE               | owner                      | Revoke an invite                           |
+| `/api/urls`          | GET · POST           | auth                       | List your URLs · create a short URL        |
+| `/api/urls/[id]`     | GET · PATCH · DELETE | owner of link (owner: any) | Fetch · **edit** · delete a short URL      |
 
 `POST /api/urls` accepts `{ fullUrl, slug?, expiresAt?, kind? }`. `PATCH /api/urls/[id]` accepts `{ fullUrl, slug, expiresAt? }` (the link's `kind` is immutable). `[id]` may be a Mongo id or the short code.
 
@@ -276,11 +277,11 @@ Short slugs may never shadow the app's own first-path segments (e.g. `login`, `r
 
 Production runs on **Vercel Hobby** with **MongoDB Atlas M0** behind the `saar.to` domain. The full checklist — Atlas setup, Vercel env vars, custom domains, premium subdomains, and post-deploy smoke tests — lives in [docs/production.md](docs/production.md).
 
-| Layer | Choice |
-|-------|--------|
-| App | Vercel Hobby |
-| Database | MongoDB Atlas M0 |
-| Domain | `saar.to` → Vercel DNS |
+| Layer    | Choice                 |
+| -------- | ---------------------- |
+| App      | Vercel Hobby           |
+| Database | MongoDB Atlas M0       |
+| Domain   | `saar.to` → Vercel DNS |
 
 Pushes to `master` deploy to production; other branches and PRs get Vercel Preview deployments.
 

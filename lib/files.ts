@@ -2,10 +2,7 @@ import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import { del } from "@vercel/blob";
 import { NextResponse } from "next/server";
-import {
-  MAX_FILE_BYTES,
-  normalizeDisposition,
-} from "@/lib/file-types";
+import { MAX_FILE_BYTES, normalizeDisposition } from "@/lib/file-types";
 import type { ShortUrlAttrs } from "@/lib/models/short-url";
 import type { FileDisposition, FileSource } from "@/lib/types";
 
@@ -49,7 +46,12 @@ function isPrivateIpv4(ip: string) {
 
 function isPrivateIp(ip: string) {
   const value = ip.toLowerCase().replace(/^\[|\]$/g, "");
-  if (value === "::1" || value.startsWith("fe80:") || value.startsWith("fc") || value.startsWith("fd")) {
+  if (
+    value === "::1" ||
+    value.startsWith("fe80:") ||
+    value.startsWith("fc") ||
+    value.startsWith("fd")
+  ) {
     return true;
   }
   if (value.startsWith("::ffff:")) {
@@ -135,12 +137,10 @@ export async function serveFile(doc: ShortUrlAttrs) {
   }
 
   const contentType =
-    doc.contentType ||
-    response.headers.get("content-type") ||
-    "application/octet-stream";
+    doc.contentType || response.headers.get("content-type") || "application/octet-stream";
   const disposition = normalizeDisposition(
     doc.disposition === "attachment" ? "attachment" : "inline",
-    contentType
+    contentType,
   );
   const fileName = doc.fileName?.trim() || "download";
 
@@ -188,7 +188,7 @@ export function assignFileTarget(
     contentType?: string;
     fileSize?: number;
     fileSource?: FileSource;
-  }
+  },
 ) {
   doc.full = data.fullUrl;
   doc.target = data.target;

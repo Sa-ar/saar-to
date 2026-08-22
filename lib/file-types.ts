@@ -39,7 +39,7 @@ export function mustForceAttachment(contentType: string) {
 
 export function normalizeDisposition(
   disposition: FileDisposition | undefined,
-  contentType: string
+  contentType: string,
 ): FileDisposition {
   if (mustForceAttachment(contentType)) {
     return "attachment";

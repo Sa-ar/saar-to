@@ -43,7 +43,7 @@ function buildAppLinks(options: AppLinkOptions): ShortUrlMetaTag[] {
       {
         key: "apple-itunes-app",
         value: `app-id=${options.appStoreId}, app-argument=${options.fallbackUrl}`,
-      }
+      },
     );
   }
 
@@ -51,7 +51,7 @@ function buildAppLinks(options: AppLinkOptions): ShortUrlMetaTag[] {
     tags.push(
       { key: "al:android:url", value: options.androidUrl },
       { key: "al:android:package", value: options.androidPackage },
-      { key: "al:android:app_name", value: options.appName }
+      { key: "al:android:app_name", value: options.appName },
     );
   }
 

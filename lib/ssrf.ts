@@ -3,11 +3,7 @@ import { isIP } from "node:net";
 import { Agent, fetch as undiciFetch, type RequestInit as UndiciRequestInit } from "undici";
 
 const ALLOWED_PROTOCOLS = new Set(["http:", "https:"]);
-const BLOCKED_HOSTNAMES = new Set([
-  "localhost",
-  "metadata.google.internal",
-  "metadata",
-]);
+const BLOCKED_HOSTNAMES = new Set(["localhost", "metadata.google.internal", "metadata"]);
 
 export type SafeOutboundTarget = {
   url: URL;
@@ -17,10 +13,12 @@ export type SafeOutboundTarget = {
 };
 
 function ipv4ToInt(address: string) {
-  return address
-    .split(".")
-    .map((part) => Number(part))
-    .reduce((value, part) => (value << 8) + part, 0) >>> 0;
+  return (
+    address
+      .split(".")
+      .map((part) => Number(part))
+      .reduce((value, part) => (value << 8) + part, 0) >>> 0
+  );
 }
 
 function isIpv4InCidr(address: string, base: string, prefix: number) {
@@ -86,11 +84,7 @@ function extractMappedIpv4(address: string): string | null {
   }
 
   // Deprecated IPv4-compatible form ::a.b.c.d (not ::ffff:)
-  if (
-    normalized.startsWith("::") &&
-    !normalized.includes(":ffff:") &&
-    normalized.includes(".")
-  ) {
+  if (normalized.startsWith("::") && !normalized.includes(":ffff:") && normalized.includes(".")) {
     const mapped = normalized.slice(2);
     return isIP(mapped) === 4 ? mapped : null;
   }
@@ -140,9 +134,7 @@ function isBlockedIp(address: string) {
 }
 
 /** Resolve and validate an outbound URL, pinning a single safe address for connect. */
-export async function resolveSafeOutboundUrl(
-  input: URL
-): Promise<SafeOutboundTarget> {
+export async function resolveSafeOutboundUrl(input: URL): Promise<SafeOutboundTarget> {
   if (!ALLOWED_PROTOCOLS.has(input.protocol)) {
     throw new Error("Only http(s) URLs are allowed");
   }
@@ -194,10 +186,7 @@ export async function assertSafeOutboundUrl(input: URL) {
  * Fetch using a dispatcher whose DNS lookup always returns the pinned address,
  * so a rebinding hostname cannot change the peer between check and connect.
  */
-export function fetchPinned(
-  target: SafeOutboundTarget,
-  init?: UndiciRequestInit
-) {
+export function fetchPinned(target: SafeOutboundTarget, init?: UndiciRequestInit) {
   const dispatcher = new Agent({
     connect: {
       lookup(_hostname, _options, callback) {

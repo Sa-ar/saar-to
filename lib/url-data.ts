@@ -3,10 +3,7 @@ import { connectDB } from "@/lib/db";
 import { ShortUrl, type ShortUrlAttrs } from "@/lib/models/short-url";
 import { User } from "@/lib/models/user";
 import { isOwnerRole } from "@/lib/roles";
-import {
-  findAccessibleShortUrl,
-  serializeShortUrl,
-} from "@/lib/urls";
+import { findAccessibleShortUrl, serializeShortUrl } from "@/lib/urls";
 import type { ShortUrlDto } from "@/lib/types";
 
 export const URLS_CACHE_TAG = "urls";
@@ -18,15 +15,12 @@ function viewerKey(userId: string, role: string | null | undefined) {
 function toDto(
   doc: ShortUrlAttrs & { _id: { toString(): string } },
   baseUrl: string,
-  createdByName?: string | null
+  createdByName?: string | null,
 ): ShortUrlDto {
   return serializeShortUrl(doc, baseUrl, { createdByName: createdByName ?? null });
 }
 
-async function creatorNames(
-  docs: Array<{ userId: { toString(): string } }>,
-  ownerView: boolean
-) {
+async function creatorNames(docs: Array<{ userId: { toString(): string } }>, ownerView: boolean) {
   if (!ownerView) {
     return new Map<string, string>();
   }
@@ -47,12 +41,10 @@ const getCachedUrlList = unstable_cache(
     const filter = key === "owner" ? {} : { userId };
     const docs = await ShortUrl.find(filter).sort({ createdAt: -1 }).lean();
     const names = await creatorNames(docs, key === "owner");
-    return docs.map((doc) =>
-      toDto(doc, baseUrl, names.get(doc.userId.toString()) ?? null)
-    );
+    return docs.map((doc) => toDto(doc, baseUrl, names.get(doc.userId.toString()) ?? null));
   },
   ["url-list"],
-  { revalidate: 60, tags: [URLS_CACHE_TAG] }
+  { revalidate: 60, tags: [URLS_CACHE_TAG] },
 );
 
 const getCachedUrl = unstable_cache(
@@ -70,14 +62,10 @@ const getCachedUrl = unstable_cache(
     return toDto(doc, baseUrl, createdByName);
   },
   ["url-one"],
-  { revalidate: 60, tags: [URLS_CACHE_TAG] }
+  { revalidate: 60, tags: [URLS_CACHE_TAG] },
 );
 
-export function loadUrlList(
-  userId: string,
-  role: string | null | undefined,
-  baseUrl: string
-) {
+export function loadUrlList(userId: string, role: string | null | undefined, baseUrl: string) {
   return getCachedUrlList(viewerKey(userId, role), userId, baseUrl);
 }
 
@@ -85,7 +73,7 @@ export function loadUrl(
   id: string,
   userId: string,
   role: string | null | undefined,
-  baseUrl: string
+  baseUrl: string,
 ) {
   return getCachedUrl(id, userId, role ?? "member", baseUrl);
 }

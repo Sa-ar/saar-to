@@ -34,10 +34,7 @@ export function clientIp(request: Request) {
 }
 
 export function visitorKey(ip: string, userAgent: string) {
-  return createHash("sha256")
-    .update(`${ip}\n${userAgent}`)
-    .digest("hex")
-    .slice(0, 32);
+  return createHash("sha256").update(`${ip}\n${userAgent}`).digest("hex").slice(0, 32);
 }
 
 function parseUserAgent(userAgent: string) {
@@ -64,9 +61,7 @@ export function parseClickRequest(request: Request) {
     userAgent,
     referrer: header(request, "referer"),
     acceptLanguage: header(request, "accept-language"),
-    country:
-      header(request, "x-vercel-ip-country") ||
-      header(request, "cf-ipcountry"),
+    country: header(request, "x-vercel-ip-country") || header(request, "cf-ipcountry"),
     region: header(request, "x-vercel-ip-country-region"),
     city: header(request, "x-vercel-ip-city"),
     ...parsed,
@@ -76,7 +71,7 @@ export function parseClickRequest(request: Request) {
 
 export async function recordClickEvent(
   request: Request,
-  doc: Pick<ShortUrlAttrs, "userId" | "short"> & { _id: Types.ObjectId }
+  doc: Pick<ShortUrlAttrs, "userId" | "short"> & { _id: Types.ObjectId },
 ) {
   const parsed = parseClickRequest(request);
   await ClickEvent.create({
@@ -114,7 +109,7 @@ export function mergeDailySeries(
   eventDays: Set<string>,
   eventCounts: Map<string, number>,
   legacy: DailyClick[],
-  days = 14
+  days = 14,
 ): DailyClick[] {
   const legacyMap = new Map(legacy.map((entry) => [entry.date, entry.count]));
   const result: DailyClick[] = [];

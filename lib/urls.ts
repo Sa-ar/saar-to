@@ -31,13 +31,13 @@ export function getBaseUrl(request?: Request) {
 }
 
 export function shortUrlKind(
-  doc: Pick<ShortUrlAttrs, "kind"> | { kind?: string | null }
+  doc: Pick<ShortUrlAttrs, "kind"> | { kind?: string | null },
 ): ShortUrlKind {
   return parseShortUrlKind(doc.kind);
 }
 
 export function shortUrlTarget(
-  doc: Pick<ShortUrlAttrs, "target"> | { target?: string | null }
+  doc: Pick<ShortUrlAttrs, "target"> | { target?: string | null },
 ): "url" | "file" {
   return doc.target === "file" ? "file" : "url";
 }
@@ -51,7 +51,7 @@ export { conflictingKinds } from "@/lib/kinds";
 export async function hasSlugCollision(
   short: string,
   kind: ShortUrlKind,
-  excludeId?: string
+  excludeId?: string,
 ): Promise<boolean> {
   const filter: Record<string, unknown> = {
     short,
@@ -70,7 +70,7 @@ export function serializeShortUrl(
     dailyClicks?: DailyClick[];
   },
   baseUrl: string,
-  extras?: { createdByName?: string | null }
+  extras?: { createdByName?: string | null },
 ): ShortUrlDto {
   const kind = shortUrlKind(doc);
   const pathUrl = kindHasPath(kind) ? `${baseUrl}/${doc.short}` : null;
@@ -92,10 +92,7 @@ export function serializeShortUrl(
     fileName: doc.fileName ?? null,
     contentType: doc.contentType ?? null,
     fileSize: doc.fileSize ?? null,
-    fileSource:
-      doc.fileSource === "blob" || doc.fileSource === "external"
-        ? doc.fileSource
-        : null,
+    fileSource: doc.fileSource === "blob" || doc.fileSource === "external" ? doc.fileSource : null,
     note: doc.note ?? null,
     createdByName: extras?.createdByName ?? null,
     hasPassword: Boolean(doc.passwordHash),
@@ -104,9 +101,7 @@ export function serializeShortUrl(
     ogImageUrl: doc.ogImageUrl ?? null,
     clicks: doc.clicks,
     expiresAt: doc.expiresAt ? new Date(doc.expiresAt).toISOString() : null,
-    lastAccessedAt: doc.lastAccessedAt
-      ? new Date(doc.lastAccessedAt).toISOString()
-      : null,
+    lastAccessedAt: doc.lastAccessedAt ? new Date(doc.lastAccessedAt).toISOString() : null,
     dailyClicks: doc.dailyClicks ?? [],
     createdAt: new Date(doc.createdAt).toISOString(),
     updatedAt: new Date(doc.updatedAt).toISOString(),
@@ -115,10 +110,7 @@ export function serializeShortUrl(
 }
 
 export function listShortUrls(filter: { userId?: string } = {}) {
-  return ShortUrl.find(filter)
-    .sort({ createdAt: -1 })
-    .select("-dailyClicks")
-    .lean();
+  return ShortUrl.find(filter).sort({ createdAt: -1 }).select("-dailyClicks").lean();
 }
 
 export function findShortUrl(id: string) {
@@ -148,7 +140,7 @@ export function findOwnedShortUrl(id: string, userId: string) {
 export function findAccessibleShortUrl(
   id: string,
   userId: string,
-  role: string | null | undefined
+  role: string | null | undefined,
 ) {
   if (role === "owner") {
     return findShortUrl(id);
@@ -157,10 +149,7 @@ export function findAccessibleShortUrl(
   return findOwnedShortUrl(id, userId);
 }
 
-export function recordClick(doc: {
-  clicks: number;
-  lastAccessedAt?: Date | null;
-}) {
+export function recordClick(doc: { clicks: number; lastAccessedAt?: Date | null }) {
   doc.clicks += 1;
   doc.lastAccessedAt = new Date();
 }
@@ -174,8 +163,6 @@ export function isDuplicateKeyError(error: unknown) {
   );
 }
 
-export function isMongooseValidationError(
-  error: unknown
-): error is mongoose.Error.ValidationError {
+export function isMongooseValidationError(error: unknown): error is mongoose.Error.ValidationError {
   return error instanceof mongoose.Error.ValidationError;
 }

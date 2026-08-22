@@ -17,7 +17,7 @@ const EXPIRING_SOON_WINDOW_MS = 24 * 60 * 60 * 1000;
 /** True when a link has an expiry within the next 24h (and hasn't expired). */
 export function isExpiringSoon(
   expiresAt?: Date | string | null,
-  windowMs = EXPIRING_SOON_WINDOW_MS
+  windowMs = EXPIRING_SOON_WINDOW_MS,
 ) {
   if (!expiresAt) {
     return false;

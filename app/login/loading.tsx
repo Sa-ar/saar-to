@@ -1,8 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageShell } from "@/components/page-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 

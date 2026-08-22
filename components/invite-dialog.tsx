@@ -4,12 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
-import {
-  createInvite,
-  fetchInvites,
-  revokeInvite,
-  type InviteDto,
-} from "@/lib/api";
+import { createInvite, fetchInvites, revokeInvite, type InviteDto } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { EmptyState, ErrorState, LoadingState } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
@@ -64,11 +59,7 @@ export function InviteDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          <Button type="button" variant="outline" className="rounded-full" />
-        }
-      >
+      <DialogTrigger render={<Button type="button" variant="outline" className="rounded-full" />}>
         <UserPlus data-icon="inline-start" />
         Invite
       </DialogTrigger>
@@ -76,8 +67,8 @@ export function InviteDialog() {
         <DialogHeader>
           <DialogTitle>Invite someone</DialogTitle>
           <DialogDescription>
-            One-time links expire in 7 days. Recipients register as members and
-            only see their own links.
+            One-time links expire in 7 days. Recipients register as members and only see their own
+            links.
           </DialogDescription>
         </DialogHeader>
 
@@ -87,9 +78,7 @@ export function InviteDialog() {
           disabled={createMutation.isPending}
           onClick={() => createMutation.mutate()}
         >
-          {createMutation.isPending
-            ? "Creating…"
-            : "Create invite and copy link"}
+          {createMutation.isPending ? "Creating…" : "Create invite and copy link"}
         </Button>
 
         <div className="space-y-2">
@@ -102,11 +91,7 @@ export function InviteDialog() {
             <ErrorState
               className="py-8"
               title="Could not load invites"
-              message={
-                invitesQuery.error instanceof Error
-                  ? invitesQuery.error.message
-                  : undefined
-              }
+              message={invitesQuery.error instanceof Error ? invitesQuery.error.message : undefined}
               onRetry={() => {
                 void invitesQuery.refetch();
               }}
@@ -147,10 +132,7 @@ export function InviteDialog() {
                       variant="ghost"
                       size="icon-sm"
                       aria-label="Revoke invite"
-                      disabled={
-                        revokeMutation.isPending &&
-                        revokeMutation.variables === invite.id
-                      }
+                      disabled={revokeMutation.isPending && revokeMutation.variables === invite.id}
                       onClick={() => revokeMutation.mutate(invite.id)}
                     >
                       <Trash2 />

@@ -16,9 +16,7 @@ export function HideBotsToggle({
           Hide bots
         </Label>
         <p className="text-xs text-muted-foreground">
-          {checked
-            ? "Clicks and uniques exclude crawlers"
-            : "Showing all visits, including bots"}
+          {checked ? "Clicks and uniques exclude crawlers" : "Showing all visits, including bots"}
         </p>
       </div>
       <button

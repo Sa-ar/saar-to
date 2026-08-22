@@ -23,10 +23,7 @@ export async function POST(request: Request) {
       : "";
 
   if (!inviteToken.trim()) {
-    return NextResponse.json(
-      { error: "Registration requires an invite" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "Registration requires an invite" }, { status: 403 });
   }
 
   const parsed = registerSchema.safeParse(body);
@@ -39,10 +36,7 @@ export async function POST(request: Request) {
 
   const invite = await consumeInvite(parsed.data.invite);
   if (!invite) {
-    return NextResponse.json(
-      { error: "Invite is invalid or expired" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invite is invalid or expired" }, { status: 400 });
   }
 
   try {
@@ -59,7 +53,7 @@ export async function POST(request: Request) {
     if (isDuplicateKeyError(error)) {
       return NextResponse.json(
         { error: "An account with that email already exists" },
-        { status: 409 }
+        { status: 409 },
       );
     }
     throw error;

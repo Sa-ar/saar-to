@@ -31,10 +31,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const passwordMatches = await compare(
-          parsed.data.password,
-          user.passwordHash
-        );
+        const passwordMatches = await compare(parsed.data.password, user.passwordHash);
         if (!passwordMatches) {
           return null;
         }
