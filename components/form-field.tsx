@@ -37,7 +37,7 @@ export function FormField({
       <p
         className={cn(
           "min-h-5 break-words text-xs leading-5",
-          error ? "text-destructive" : "text-muted-foreground"
+          error ? "text-destructive" : "text-muted-foreground",
         )}
       >
         {error ?? hint ?? " "}

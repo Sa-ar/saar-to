@@ -37,11 +37,7 @@ export function getClientPlatform(userAgent: string): ClientPlatform {
     return "android";
   }
 
-  if (
-    normalized.includes("iphone") ||
-    normalized.includes("ipad") ||
-    normalized.includes("ipod")
-  ) {
+  if (normalized.includes("iphone") || normalized.includes("ipad") || normalized.includes("ipod")) {
     return "ios";
   }
 

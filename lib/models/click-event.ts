@@ -51,7 +51,7 @@ const clickEventSchema = new Schema<ClickEventAttrs>(
     isBot: { type: Boolean, required: true, default: false, index: true },
     visitorKey: { type: String, required: true, index: true },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: { createdAt: true, updatedAt: false } },
 );
 
 clickEventSchema.index({ shortUrlId: 1, createdAt: -1 });

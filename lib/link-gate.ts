@@ -41,7 +41,7 @@ export function hasUnlockCookie(request: Request, id: string) {
 
 export function needsPassword(
   doc: Pick<ShortUrlAttrs, "passwordHash"> & { _id: { toString(): string } },
-  request: Request
+  request: Request,
 ) {
   if (!doc.passwordHash) {
     return false;
@@ -49,10 +49,7 @@ export function needsPassword(
   return !hasUnlockCookie(request, doc._id.toString());
 }
 
-export async function verifyLinkPassword(
-  passwordHash: string,
-  password: string
-) {
+export async function verifyLinkPassword(passwordHash: string, password: string) {
   return compare(password, passwordHash);
 }
 
@@ -64,11 +61,7 @@ function escapeHtml(value: string) {
     .replaceAll('"', "&quot;");
 }
 
-export function unlockPage(
-  shortLabel: string,
-  actionPath: string,
-  invalid = false
-) {
+export function unlockPage(shortLabel: string, actionPath: string, invalid = false) {
   const html = `<!doctype html>
 <html lang="en">
   <head>
@@ -122,7 +115,5 @@ export function setUnlockCookie(response: NextResponse, id: string) {
 }
 
 export function unlockActionPath(kind: PublicHitKind, code: string) {
-  return kind === SHORT_URL_KIND.SUBDOMAIN
-    ? "/"
-    : `/${encodeURIComponent(code)}`;
+  return kind === SHORT_URL_KIND.SUBDOMAIN ? "/" : `/${encodeURIComponent(code)}`;
 }

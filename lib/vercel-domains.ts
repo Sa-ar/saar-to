@@ -2,8 +2,7 @@ import { vanityHostname } from "@/lib/hosts";
 
 function vercelConfig() {
   const token = process.env.VERCEL_TOKEN;
-  const projectId =
-    process.env.VERCEL_PROJECT_ID ?? process.env.VERCEL_PROJECT_ID_SAAR;
+  const projectId = process.env.VERCEL_PROJECT_ID ?? process.env.VERCEL_PROJECT_ID_SAAR;
   const teamId = process.env.VERCEL_TEAM_ID;
 
   if (!token || !projectId) {
@@ -21,15 +20,12 @@ function teamQuery(teamId: string | undefined) {
  * Attach `{label}.saar.to` to the Vercel project so Hobby can serve it.
  * No-ops when VERCEL_TOKEN / VERCEL_PROJECT_ID are unset (local/dev).
  */
-export async function ensureVanityDomain(label: string): Promise<
-  | { ok: true; provisioned: boolean }
-  | { ok: false; error: string }
-> {
+export async function ensureVanityDomain(
+  label: string,
+): Promise<{ ok: true; provisioned: boolean } | { ok: false; error: string }> {
   const config = vercelConfig();
   if (!config) {
-    console.warn(
-      "[vercel-domains] VERCEL_TOKEN or VERCEL_PROJECT_ID unset; skip domain add"
-    );
+    console.warn("[vercel-domains] VERCEL_TOKEN or VERCEL_PROJECT_ID unset; skip domain add");
     return { ok: true, provisioned: false };
   }
 
@@ -43,7 +39,7 @@ export async function ensureVanityDomain(label: string): Promise<
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ name: domain }),
-    }
+    },
   );
 
   if (response.ok) {
@@ -63,8 +59,7 @@ export async function ensureVanityDomain(label: string): Promise<
     return { ok: true, provisioned: true };
   }
 
-  const message =
-    body.error?.message ?? `Vercel domain add failed (${response.status})`;
+  const message = body.error?.message ?? `Vercel domain add failed (${response.status})`;
   console.error(`[vercel-domains] add ${domain}:`, message);
   return { ok: false, error: message };
 }
@@ -83,7 +78,7 @@ export async function removeVanityDomain(label: string): Promise<void> {
       headers: {
         Authorization: `Bearer ${config.token}`,
       },
-    }
+    },
   );
 
   if (response.ok || response.status === 404) {
@@ -93,8 +88,5 @@ export async function removeVanityDomain(label: string): Promise<void> {
   const body = (await response.json().catch(() => ({}))) as {
     error?: { message?: string };
   };
-  console.error(
-    `[vercel-domains] remove ${domain}:`,
-    body.error?.message ?? response.status
-  );
+  console.error(`[vercel-domains] remove ${domain}:`, body.error?.message ?? response.status);
 }

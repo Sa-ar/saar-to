@@ -24,10 +24,7 @@ export async function ensureUserRoles() {
       _id: { $ne: oldest._id },
       $or: [{ role: { $exists: false } }, { role: null }],
     },
-    { $set: { role: "member" satisfies UserRole } }
+    { $set: { role: "member" satisfies UserRole } },
   );
-  await User.updateOne(
-    { _id: oldest._id },
-    { $set: { role: "owner" satisfies UserRole } }
-  );
+  await User.updateOne({ _id: oldest._id }, { $set: { role: "owner" satisfies UserRole } });
 }

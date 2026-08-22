@@ -29,9 +29,8 @@ const userSchema = new Schema<UserAttrs>(
       default: "member",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const User =
-  (models.User as Model<UserAttrs> | undefined) ??
-  model<UserAttrs>("User", userSchema);
+  (models.User as Model<UserAttrs> | undefined) ?? model<UserAttrs>("User", userSchema);

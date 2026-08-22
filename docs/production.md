@@ -4,11 +4,11 @@ Decision date: 2026-08-16
 
 ## Decision
 
-| Layer | Choice | Tier |
-|-------|--------|------|
-| App | [Vercel](https://vercel.com) | Hobby (free) |
-| Database | [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) | M0 free cluster |
-| Domain | `saar.to` | Registrar DNS → Vercel |
+| Layer    | Choice                                               | Tier                   |
+| -------- | ---------------------------------------------------- | ---------------------- |
+| App      | [Vercel](https://vercel.com)                         | Hobby (free)           |
+| Database | [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) | M0 free cluster        |
+| Domain   | `saar.to`                                            | Registrar DNS → Vercel |
 
 This is the default free stack for a personal Next.js App Router app with MongoDB and a custom domain. Alternatives (Railway, Render, Fly, self-hosted VPS) add ops cost without a clear benefit at this scale.
 
@@ -23,16 +23,16 @@ This is the default free stack for a personal Next.js App Router app with MongoD
 
 Set these in the Vercel project → Settings → Environment Variables (Production):
 
-| Variable | Production value |
-|----------|------------------|
-| `MONGODB_URI` | Atlas connection string (`mongodb+srv://…`) |
-| `NEXT_PUBLIC_BASE_URL` | `https://saar.to` |
-| `NEXTAUTH_URL` | `https://saar.to` |
-| `NEXTAUTH_SECRET` | Long random secret (`openssl rand -base64 32`) |
-| `VERCEL_TOKEN` | (Optional) Token for auto-adding `{slug}.saar.to` domains |
-| `VERCEL_PROJECT_ID` | (Optional) Project id from `.vercel/project.json` |
-| `VERCEL_TEAM_ID` | (Optional) Team/org id (`orgId` in `.vercel/project.json`) |
-| `BLOB_READ_WRITE_TOKEN` | (Optional) Vercel Blob store token for file-link uploads |
+| Variable                | Production value                                           |
+| ----------------------- | ---------------------------------------------------------- |
+| `MONGODB_URI`           | Atlas connection string (`mongodb+srv://…`)                |
+| `NEXT_PUBLIC_BASE_URL`  | `https://saar.to`                                          |
+| `NEXTAUTH_URL`          | `https://saar.to`                                          |
+| `NEXTAUTH_SECRET`       | Long random secret (`openssl rand -base64 32`)             |
+| `VERCEL_TOKEN`          | (Optional) Token for auto-adding `{slug}.saar.to` domains  |
+| `VERCEL_PROJECT_ID`     | (Optional) Project id from `.vercel/project.json`          |
+| `VERCEL_TEAM_ID`        | (Optional) Team/org id (`orgId` in `.vercel/project.json`) |
+| `BLOB_READ_WRITE_TOKEN` | (Optional) Vercel Blob store token for file-link uploads   |
 
 Local `.env.local` may use `NEXTAUTH_URL=http://localhost:3000` and a local or Atlas URI. Never commit secrets.
 
@@ -40,11 +40,11 @@ Local `.env.local` may use `NEXTAUTH_URL=http://localhost:3000` and a local or A
 
 Vercel creates a **Preview** deployment for every push to a non-production branch (and for pull requests).
 
-| Variable | Preview recommendation |
-|----------|------------------------|
-| `MONGODB_URI` | Same Atlas cluster, or a separate `url-shortener-preview` DB |
-| `NEXTAUTH_SECRET` | Same as production (or a dedicated preview secret) |
-| `NEXTAUTH_URL` | Leave **unset** — the app uses `VERCEL_URL` automatically |
+| Variable               | Preview recommendation                                                                                           |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `MONGODB_URI`          | Same Atlas cluster, or a separate `url-shortener-preview` DB                                                     |
+| `NEXTAUTH_SECRET`      | Same as production (or a dedicated preview secret)                                                               |
+| `NEXTAUTH_URL`         | Leave **unset** — the app uses `VERCEL_URL` automatically                                                        |
 | `NEXT_PUBLIC_BASE_URL` | Leave **unset** on Preview so invite/short links use the preview host; keep `https://saar.to` on Production only |
 
 Production branch is `master`. Push a feature branch to get a URL like `https://saar-to-git-<branch>-….vercel.app`.
@@ -90,12 +90,12 @@ Hobby does not support a Vercel wildcard custom domain. Per-subdomain hosts are 
 
 ## Local vs production
 
-| | Local | Production |
-|--|-------|------------|
-| App | `npm run dev` → `http://localhost:3000` | Vercel → `https://saar.to` |
-| DB | Local Mongo or Atlas | Atlas M0 |
-| `NEXTAUTH_URL` | `http://localhost:3000` | `https://saar.to` |
-| Short links | Prefer `NEXT_PUBLIC_BASE_URL=https://saar.to` even locally if you want copied URLs to be production-shaped | `https://saar.to` |
+|                | Local                                                                                                      | Production                 |
+| -------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------- |
+| App            | `npm run dev` → `http://localhost:3000`                                                                    | Vercel → `https://saar.to` |
+| DB             | Local Mongo or Atlas                                                                                       | Atlas M0                   |
+| `NEXTAUTH_URL` | `http://localhost:3000`                                                                                    | `https://saar.to`          |
+| Short links    | Prefer `NEXT_PUBLIC_BASE_URL=https://saar.to` even locally if you want copied URLs to be production-shaped | `https://saar.to`          |
 
 ## Related product work (not required to host)
 

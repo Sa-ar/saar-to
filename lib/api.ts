@@ -30,7 +30,7 @@ async function parseJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
     throw new ApiError(
       typeof data.error === "string" ? data.error : "Request failed",
-      response.status
+      response.status,
     );
   }
 
@@ -48,15 +48,13 @@ export async function fetchUrl(id: string) {
 }
 
 export async function fetchStatsOverview(excludeBots: boolean) {
-  const response = await fetch(
-    `/api/stats/overview?excludeBots=${excludeBots ? "true" : "false"}`
-  );
+  const response = await fetch(`/api/stats/overview?excludeBots=${excludeBots ? "true" : "false"}`);
   return parseJson<StatsOverviewDto>(response);
 }
 
 export async function fetchUrlClicks(id: string, excludeBots: boolean) {
   const response = await fetch(
-    `/api/urls/${id}/clicks?excludeBots=${excludeBots ? "true" : "false"}`
+    `/api/urls/${id}/clicks?excludeBots=${excludeBots ? "true" : "false"}`,
   );
   return parseJson<LinkClicksDto>(response);
 }

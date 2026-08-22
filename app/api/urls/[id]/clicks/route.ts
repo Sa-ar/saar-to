@@ -20,11 +20,7 @@ export async function GET(request: Request, context: RouteContext) {
 
   const { id } = await context.params;
   await connectDB();
-  const doc = await findAccessibleShortUrl(
-    id,
-    session.user.id,
-    session.user.role
-  );
+  const doc = await findAccessibleShortUrl(id, session.user.id, session.user.role);
 
   if (!doc) {
     return NextResponse.json({ error: "Short URL not found" }, { status: 404 });

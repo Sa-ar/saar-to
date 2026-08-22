@@ -26,8 +26,7 @@ export function EditUrlDialog({
         <DialogHeader>
           <DialogTitle>Edit link</DialogTitle>
           <DialogDescription>
-            Change the destination on Link. Password, expiry, and preview live
-            under Options.
+            Change the destination on Link. Password, expiry, and preview live under Options.
           </DialogDescription>
         </DialogHeader>
         {url ? (

@@ -14,10 +14,7 @@ export function LoadingState({
     <div
       role="status"
       aria-busy="true"
-      className={cn(
-        "flex flex-col items-center justify-center gap-3 py-12 text-center",
-        className
-      )}
+      className={cn("flex flex-col items-center justify-center gap-3 py-12 text-center", className)}
     >
       <Loader2 className="size-6 animate-spin text-primary" />
       <p className="text-sm text-muted-foreground">{label}</p>
@@ -40,17 +37,12 @@ export function EmptyState({
 }) {
   return (
     <div
-      className={cn(
-        "flex flex-col items-center justify-center gap-3 py-12 text-center",
-        className
-      )}
+      className={cn("flex flex-col items-center justify-center gap-3 py-12 text-center", className)}
     >
       {icon}
       <div className="space-y-1">
         <p className="font-medium">{title}</p>
-        {description ? (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        ) : null}
+        {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       </div>
       {action}
     </div>
@@ -73,24 +65,14 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className={cn(
-        "flex flex-col items-center justify-center gap-3 py-12 text-center",
-        className
-      )}
+      className={cn("flex flex-col items-center justify-center gap-3 py-12 text-center", className)}
     >
       <div className="space-y-1">
         <p className="font-medium text-destructive">{title}</p>
-        {message ? (
-          <p className="text-sm text-muted-foreground">{message}</p>
-        ) : null}
+        {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
       </div>
       {onRetry ? (
-        <Button
-          type="button"
-          variant="outline"
-          className="rounded-full"
-          onClick={onRetry}
-        >
+        <Button type="button" variant="outline" className="rounded-full" onClick={onRetry}>
           Retry
         </Button>
       ) : null}

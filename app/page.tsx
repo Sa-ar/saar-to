@@ -12,11 +12,7 @@ export default async function Home() {
   const queryClient = makeQueryClient();
 
   if (session?.user?.id) {
-    const urls = await loadUrlList(
-      session.user.id,
-      session.user.role,
-      getBaseUrl()
-    );
+    const urls = await loadUrlList(session.user.id, session.user.role, getBaseUrl());
     queryClient.setQueryData(urlsQueryKey, urls);
     seedUrlCaches(queryClient, urls);
   }

@@ -17,11 +17,7 @@ export function matchesStatus(url: ShortUrlDto, status: LinkStatusFilter) {
   }
 }
 
-export function filterUrls(
-  urls: ShortUrlDto[],
-  search: string,
-  status: LinkStatusFilter
-) {
+export function filterUrls(urls: ShortUrlDto[], search: string, status: LinkStatusFilter) {
   const query = search.trim().toLowerCase();
 
   return urls.filter((url) => {
@@ -42,4 +38,3 @@ export function filterUrls(
     );
   });
 }
-

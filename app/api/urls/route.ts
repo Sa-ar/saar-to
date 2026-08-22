@@ -27,11 +27,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const urls = await loadUrlList(
-    session.user.id,
-    session.user.role,
-    getBaseUrl(request)
-  );
+  const urls = await loadUrlList(session.user.id, session.user.role, getBaseUrl(request));
 
   return NextResponse.json(urls);
 }
@@ -50,8 +46,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const record =
-    body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+  const record = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
 
   const parsed = createUrlSchema.safeParse({
     fullUrl: record.fullUrl,
@@ -81,30 +76,24 @@ export async function POST(request: Request) {
   if (kindHasSubdomain(parsed.data.kind) && !isOwnerRole(session.user.role)) {
     return NextResponse.json(
       { error: "Only owners can create premium subdomain links" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
   if (kindHasSubdomain(parsed.data.kind) && !parsed.data.slug) {
-    return NextResponse.json(
-      { error: "Subdomain is required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Subdomain is required" }, { status: 400 });
   }
 
   await connectDB({ waitForEnsure: true });
 
-  if (
-    parsed.data.slug &&
-    (await hasSlugCollision(parsed.data.slug, parsed.data.kind))
-  ) {
+  if (parsed.data.slug && (await hasSlugCollision(parsed.data.slug, parsed.data.kind))) {
     return NextResponse.json(
       {
         error: kindHasSubdomain(parsed.data.kind)
           ? "That subdomain or path is already taken"
           : "That slug is already taken",
       },
-      { status: 409 }
+      { status: 409 },
     );
   }
 
@@ -115,9 +104,7 @@ export async function POST(request: Request) {
       kind: parsed.data.kind,
       target: parsed.data.target,
       ...(parsed.data.slug ? { short: parsed.data.slug } : {}),
-      expiresAt: parsed.data.expiresAt
-        ? new Date(parsed.data.expiresAt)
-        : null,
+      expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null,
     });
     assignFileTarget(doc, parsed.data);
     if (parsed.data.note) {
@@ -149,10 +136,7 @@ export async function POST(request: Request) {
       }
     });
     revalidateUrlCaches();
-    return NextResponse.json(
-      domainWarning ? { ...dto, domainWarning } : dto,
-      { status: 201 }
-    );
+    return NextResponse.json(domainWarning ? { ...dto, domainWarning } : dto, { status: 201 });
   } catch (error) {
     if (isDuplicateKeyError(error)) {
       return NextResponse.json(
@@ -161,7 +145,7 @@ export async function POST(request: Request) {
             ? "That subdomain is already taken"
             : "That slug is already taken",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 

@@ -5,10 +5,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { fetchStatsOverview, fetchUrls } from "@/lib/api";
-import {
-  filterUrls,
-  type LinkStatusFilter,
-} from "@/lib/dashboard";
+import { filterUrls, type LinkStatusFilter } from "@/lib/dashboard";
 import { urlsQueryKey } from "@/lib/query";
 import { HideBotsToggle } from "@/components/hide-bots-toggle";
 import { InviteDialog } from "@/components/invite-dialog";
@@ -41,7 +38,7 @@ export function Dashboard({ isOwner = false }: { isOwner?: boolean }) {
   const allUrls = useMemo(() => query.data ?? [], [query.data]);
   const filteredUrls = useMemo(
     () => filterUrls(allUrls, search, status),
-    [allUrls, search, status]
+    [allUrls, search, status],
   );
   const hasActiveFilters = search.trim() !== "" || status !== "all";
 
@@ -49,12 +46,8 @@ export function Dashboard({ isOwner = false }: { isOwner?: boolean }) {
     <PageShell className="gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-3">
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">
-            saar.to
-          </p>
-          <h1 className="font-heading text-4xl font-semibold tracking-tight">
-            Dashboard
-          </h1>
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">saar.to</p>
+          <h1 className="font-heading text-4xl font-semibold tracking-tight">Dashboard</h1>
           <p className="max-w-xl text-muted-foreground">
             Filter your links and watch the totals update.
             {isOwner
@@ -104,18 +97,13 @@ export function Dashboard({ isOwner = false }: { isOwner?: boolean }) {
         </div>
       </div>
 
-      <UrlOverview
-        overview={overviewQuery.data}
-        isPending={overviewQuery.isPending}
-      />
+      <UrlOverview overview={overviewQuery.data} isPending={overviewQuery.isPending} />
 
       <UrlTable
         urls={filteredUrls}
         isPending={query.isPending}
         isError={query.isError}
-        errorMessage={
-          query.error instanceof Error ? query.error.message : undefined
-        }
+        errorMessage={query.error instanceof Error ? query.error.message : undefined}
         hasLinks={allUrls.length > 0}
         hasActiveFilters={hasActiveFilters}
         totalCount={allUrls.length}

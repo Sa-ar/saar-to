@@ -75,18 +75,13 @@ setTimeout(() => {
 `.trim();
 }
 
-export async function handlePublicRequest(
-  request: Request,
-  code: string,
-  kind: PublicHitKind
-) {
+export async function handlePublicRequest(request: Request, code: string, kind: PublicHitKind) {
   const doc = await resolvePublicHit(code, kind);
   if (!doc) {
     return null;
   }
 
-  const label =
-    kind === SHORT_URL_KIND.SUBDOMAIN ? `${doc.short}.saar.to` : `saar.to/${doc.short}`;
+  const label = kind === SHORT_URL_KIND.SUBDOMAIN ? `${doc.short}.saar.to` : `saar.to/${doc.short}`;
   const action = unlockActionPath(kind, doc.short);
   const canonical = canonicalUrl(kind, doc.short);
 
@@ -97,9 +92,7 @@ export async function handlePublicRequest(
 
     const form = await request.formData().catch(() => null);
     const password = String(form?.get("password") ?? "");
-    const ok = password
-      ? await verifyLinkPassword(doc.passwordHash, password)
-      : false;
+    const ok = password ? await verifyLinkPassword(doc.passwordHash, password) : false;
 
     if (!ok) {
       return unlockPage(label, action, true);

@@ -13,7 +13,7 @@ function usage() {
 Creates an owner account. Members must register via an invite link.
 
 --target local        load .env.local (default)
---target production   load .env.prod (pull with: npm run env:pull-prod)`
+--target production   load .env.prod (pull with: npm run env:pull-prod)`,
   );
 }
 
@@ -48,9 +48,7 @@ function loadEnv(target: Target): void {
   const path = resolve(process.cwd(), file);
   if (!existsSync(path)) {
     if (target === "production") {
-      console.error(
-        "Missing .env.prod. Pull production env from Vercel:\n  npm run env:pull-prod"
-      );
+      console.error("Missing .env.prod. Pull production env from Vercel:\n  npm run env:pull-prod");
     } else {
       console.error("Missing .env.local. Copy .env.example to .env.local.");
     }
@@ -67,7 +65,7 @@ function mongoUri(): string {
   }
   if (uri.includes("[SENSITIVE]") || uri.includes("[HIDDEN]")) {
     console.error(
-      "MONGODB_URI in .env.prod is a Vercel placeholder. Re-run in your own terminal:\n  npm run env:pull-prod"
+      "MONGODB_URI in .env.prod is a Vercel placeholder. Re-run in your own terminal:\n  npm run env:pull-prod",
     );
     process.exit(1);
   }

@@ -16,10 +16,9 @@ export type PublicLinkDoc = HydratedDocument<ShortUrlAttrs>;
 
 export async function resolvePublicHit(
   code: string,
-  kind: PublicHitKind
+  kind: PublicHitKind,
 ): Promise<PublicLinkDoc | null> {
-  const slug =
-    kind === SHORT_URL_KIND.SUBDOMAIN ? code.toLowerCase() : code;
+  const slug = kind === SHORT_URL_KIND.SUBDOMAIN ? code.toLowerCase() : code;
 
   if (isReservedSlug(slug)) {
     return null;

@@ -24,11 +24,7 @@ export default function StatsError({
         message={error.message || "An unexpected error occurred."}
         onRetry={reset}
         action={
-          <Button
-            variant="outline"
-            className="rounded-full"
-            render={<Link href="/" />}
-          >
+          <Button variant="outline" className="rounded-full" render={<Link href="/" />}>
             Back to home
           </Button>
         }

@@ -6,22 +6,13 @@ import { makeQueryClient } from "@/lib/query-client";
 import { loadUrl } from "@/lib/url-data";
 import { getBaseUrl } from "@/lib/urls";
 
-export default async function StatsPage({
-  params,
-}: {
-  params: Promise<{ code: string }>;
-}) {
+export default async function StatsPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
   const session = await getSession();
   const queryClient = makeQueryClient();
 
   if (session?.user?.id) {
-    const url = await loadUrl(
-      code,
-      session.user.id,
-      session.user.role,
-      getBaseUrl()
-    );
+    const url = await loadUrl(code, session.user.id, session.user.role, getBaseUrl());
     if (url) {
       queryClient.setQueryData(urlQueryKey(url.id), url);
       queryClient.setQueryData(urlQueryKey(code), url);

@@ -9,13 +9,7 @@ import { formatFormError } from "@/lib/validations/url";
 import { registerSchema } from "@/lib/validations/auth";
 import { FormField } from "@/components/form-field";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 export function RegisterForm({ invite }: { invite: string }) {
@@ -71,13 +65,9 @@ export function RegisterForm({ invite }: { invite: string }) {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="gap-3">
-        <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">
-          saar.to
-        </p>
+        <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">saar.to</p>
         <CardTitle className="font-heading text-3xl">Create account</CardTitle>
-        <CardDescription>
-          You were invited to manage your own saar.to links.
-        </CardDescription>
+        <CardDescription>You were invited to manage your own saar.to links.</CardDescription>
       </CardHeader>
       <CardContent>
         <form

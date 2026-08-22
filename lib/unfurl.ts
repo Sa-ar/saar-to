@@ -1,4 +1,9 @@
-import { ShortUrl, type ShortUrlDoc, type ShortUrlMetaTag, type ShortUrlUnfurl } from "@/lib/models/short-url";
+import {
+  ShortUrl,
+  type ShortUrlDoc,
+  type ShortUrlMetaTag,
+  type ShortUrlUnfurl,
+} from "@/lib/models/short-url";
 import { fetchPinned, resolveSafeOutboundUrl } from "@/lib/ssrf";
 
 const MAX_UNFURL_BYTES = 512 * 1024;
@@ -174,10 +179,7 @@ function toUnfurl(html: string, finalUrl: URL): ShortUrlUnfurl | null {
     truncate(metaTags.get("description"));
 
   const image =
-    resolveMaybeUrl(
-      metaTags.get("og:image") ?? metaTags.get("twitter:image"),
-      finalUrl
-    ) ?? null;
+    resolveMaybeUrl(metaTags.get("og:image") ?? metaTags.get("twitter:image"), finalUrl) ?? null;
 
   if (!title && !description && !image && rawAppLinks.length === 0) {
     return null;
@@ -187,9 +189,7 @@ function toUnfurl(html: string, finalUrl: URL): ShortUrlUnfurl | null {
     title,
     description,
     image,
-    imageAlt:
-      truncate(metaTags.get("og:image:alt")) ??
-      truncate(metaTags.get("twitter:image:alt")),
+    imageAlt: truncate(metaTags.get("og:image:alt")) ?? truncate(metaTags.get("twitter:image:alt")),
     imageWidth: truncate(metaTags.get("og:image:width"), 50),
     imageHeight: truncate(metaTags.get("og:image:height"), 50),
     siteName: truncate(metaTags.get("og:site_name")),
@@ -214,7 +214,7 @@ export function isUnfurlStale(unfurl: ShortUrlUnfurl | null | undefined) {
 
 export async function fetchUnfurlMetadata(
   input: string,
-  options?: RefreshOptions
+  options?: RefreshOptions,
 ): Promise<ShortUrlUnfurl | null> {
   const timeoutMs = options?.timeoutMs ?? REQUEST_TIMEOUT_MS;
   const url = new URL(input);

@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const overview = await statsOverview(
     session.user.id,
     session.user.role,
-    parseExcludeBots(request)
+    parseExcludeBots(request),
   );
 
   return NextResponse.json(overview);

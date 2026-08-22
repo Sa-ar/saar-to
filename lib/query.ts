@@ -40,6 +40,6 @@ export function upsertUrlInCache(queryClient: QueryClient, saved: ShortUrlDto) {
 export function removeUrlFromCache(queryClient: QueryClient, id: string) {
   queryClient.removeQueries({ queryKey: urlQueryKey(id) });
   queryClient.setQueryData(urlsQueryKey, (old: ShortUrlDto[] | undefined) =>
-    old?.filter((item) => item.id !== id)
+    old?.filter((item) => item.id !== id),
   );
 }

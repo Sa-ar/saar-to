@@ -1,17 +1,6 @@
-import {
-  model,
-  models,
-  Schema,
-  type HydratedDocument,
-  type Model,
-  type Types,
-} from "mongoose";
+import { model, models, Schema, type HydratedDocument, type Model, type Types } from "mongoose";
 import { nanoid } from "nanoid";
-import {
-  SHORT_URL_KIND,
-  SHORT_URL_KIND_VALUES,
-  type ShortUrlKind,
-} from "@/lib/kinds";
+import { SHORT_URL_KIND, SHORT_URL_KIND_VALUES, type ShortUrlKind } from "@/lib/kinds";
 
 export type { ShortUrlKind } from "@/lib/kinds";
 
@@ -77,7 +66,7 @@ const dailyClickSchema = new Schema<DailyClick>(
     date: { type: String, required: true },
     count: { type: Number, required: true, default: 0 },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const shortUrlMetaTagSchema = new Schema<ShortUrlMetaTag>(
@@ -85,7 +74,7 @@ const shortUrlMetaTagSchema = new Schema<ShortUrlMetaTag>(
     key: { type: String, required: true },
     value: { type: String, required: true },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const shortUrlUnfurlSchema = new Schema<ShortUrlUnfurl>(
@@ -106,7 +95,7 @@ const shortUrlUnfurlSchema = new Schema<ShortUrlUnfurl>(
     finalUrl: { type: String, default: null },
     fetchedAt: { type: Date, default: null },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const shortUrlSchema = new Schema<ShortUrlAttrs>(
@@ -159,7 +148,7 @@ const shortUrlSchema = new Schema<ShortUrlAttrs>(
     dailyClicks: { type: [dailyClickSchema], default: [] },
     unfurl: { type: shortUrlUnfurlSchema, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Path and subdomain are separate namespaces (kind+short unique).

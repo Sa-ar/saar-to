@@ -15,12 +15,7 @@ import type {
   ShortUrlKind,
   ShortUrlTarget,
 } from "@/lib/types";
-import {
-  SHORT_URL_KIND,
-  hostsToKind,
-  kindHasPath,
-  kindHasSubdomain,
-} from "@/lib/kinds";
+import { SHORT_URL_KIND, hostsToKind, kindHasPath, kindHasSubdomain } from "@/lib/kinds";
 import {
   createUrlSchema,
   editUrlSchema,
@@ -38,10 +33,7 @@ const apexHost =
     ? (() => {
         try {
           return process.env.NEXT_PUBLIC_BASE_URL
-            ? new URL(process.env.NEXT_PUBLIC_BASE_URL).hostname.replace(
-                /^www\./i,
-                ""
-              )
+            ? new URL(process.env.NEXT_PUBLIC_BASE_URL).hostname.replace(/^www\./i, "")
             : "saar.to";
         } catch {
           return "saar.to";
@@ -115,11 +107,7 @@ function Segmented<T extends string>({
   ariaLabel: string;
 }) {
   return (
-    <div
-      role="tablist"
-      aria-label={ariaLabel}
-      className="grid grid-cols-2 gap-2"
-    >
+    <div role="tablist" aria-label={ariaLabel} className="grid grid-cols-2 gap-2">
       {options.map((option) => {
         const selected = value === option.value;
         return (
@@ -138,10 +126,7 @@ function Segmented<T extends string>({
             <span className="inline-flex items-center justify-center gap-2">
               {option.label}
               {option.mark ? (
-                <span
-                  className="size-1.5 rounded-full bg-primary"
-                  aria-hidden
-                />
+                <span className="size-1.5 rounded-full bg-primary" aria-hidden />
               ) : null}
             </span>
           </button>
@@ -183,14 +168,14 @@ function HostToggle({
         className={cn(
           "relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors",
           checked ? "bg-primary" : "bg-muted-foreground/30",
-          disabled && "cursor-not-allowed opacity-50"
+          disabled && "cursor-not-allowed opacity-50",
         )}
         onClick={onToggle}
       >
         <span
           className={cn(
             "absolute top-0.5 left-0.5 size-5 rounded-full bg-background transition-transform",
-            checked ? "translate-x-5" : "translate-x-0"
+            checked ? "translate-x-5" : "translate-x-0",
           )}
         />
       </button>
@@ -215,9 +200,7 @@ export function UrlForm({
   const schema = isEdit ? editUrlSchema : createUrlSchema;
   const [uploading, setUploading] = useState(false);
   const [pane, setPane] = useState<FormPane>("link");
-  const [pasteFileUrl, setPasteFileUrl] = useState(
-    url?.fileSource === "external"
-  );
+  const [pasteFileUrl, setPasteFileUrl] = useState(url?.fileSource === "external");
 
   const mutation = useMutation({
     mutationFn: async (value: FormValues) => {
@@ -289,12 +272,10 @@ export function UrlForm({
       const parsed = schema.safeParse(value);
       if (!parsed.success) {
         const hitLink = parsed.error.issues.some((issue) =>
-          LINK_ISSUE_PATHS.has(String(issue.path[0] ?? ""))
+          LINK_ISSUE_PATHS.has(String(issue.path[0] ?? "")),
         );
         setPane(hitLink ? "link" : "options");
-        toast.error(
-          parsed.error.issues[0]?.message ?? "Check the form and try again"
-        );
+        toast.error(parsed.error.issues[0]?.message ?? "Check the form and try again");
         return;
       }
       await mutation.mutateAsync(value);
@@ -314,13 +295,13 @@ export function UrlForm({
     const values = state.values;
     return Boolean(
       values.note.trim() ||
-        values.password.trim() ||
-        values.ogTitle.trim() ||
-        values.ogDescription.trim() ||
-        values.ogImageUrl.trim() ||
-        values.expiresAt.trim() ||
-        values.removePassword ||
-        url?.hasPassword
+      values.password.trim() ||
+      values.ogTitle.trim() ||
+      values.ogDescription.trim() ||
+      values.ogImageUrl.trim() ||
+      values.expiresAt.trim() ||
+      values.removePassword ||
+      url?.hasPassword,
     );
   });
   const pathHost = kindHasPath(kind);
@@ -363,19 +344,14 @@ export function UrlForm({
       });
       form.setFieldValue("fullUrl", blob.url);
       form.setFieldValue("fileName", file.name);
-      form.setFieldValue(
-        "contentType",
-        file.type || guessContentType(file.name)
-      );
+      form.setFieldValue("contentType", file.type || guessContentType(file.name));
       form.setFieldValue("fileSize", file.size);
       form.setFieldValue("fileSource", "blob");
       setPasteFileUrl(false);
       toast.success("File uploaded", { description: file.name });
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Upload failed. Paste an https file URL instead."
+        error instanceof Error ? error.message : "Upload failed. Paste an https file URL instead.",
       );
     } finally {
       setUploading(false);
@@ -439,9 +415,7 @@ export function UrlForm({
               }}
             />
             <p className="break-words text-xs text-muted-foreground">
-              {fileName
-                ? `Selected · ${fileName}`
-                : "PDF, images, zip, or Office · 15 MB max."}
+              {fileName ? `Selected · ${fileName}` : "PDF, images, zip, or Office · 15 MB max."}
             </p>
             {pasteFileUrl ? null : (
               <button
@@ -511,9 +485,7 @@ export function UrlForm({
               requirement="Required"
               hint="https://example.com/very/long/path"
               error={
-                field.state.meta.errors[0]
-                  ? formatFormError(field.state.meta.errors[0])
-                  : undefined
+                field.state.meta.errors[0] ? formatFormError(field.state.meta.errors[0]) : undefined
               }
             >
               <Input
@@ -583,9 +555,7 @@ export function UrlForm({
               value={field.state.value}
               onBlur={field.handleBlur}
               onChange={(event) => field.handleChange(event.target.value)}
-              aria-invalid={
-                field.state.meta.errors.length > 0 || Boolean(reservedHint)
-              }
+              aria-invalid={field.state.meta.errors.length > 0 || Boolean(reservedHint)}
             />
           </FormField>
         )}
@@ -597,9 +567,7 @@ export function UrlForm({
     <>
       <div className="space-y-1 font-mono text-xs text-muted-foreground">
         {pathHost ? <p className="break-all">{`${apexHost}/${pathPreviewSlug}`}</p> : null}
-        {subdomainHost ? (
-          <p className="break-all">{`${previewSlug}.${apexHost}`}</p>
-        ) : null}
+        {subdomainHost ? <p className="break-all">{`${previewSlug}.${apexHost}`}</p> : null}
       </div>
 
       <form.Field name="note">
@@ -610,9 +578,7 @@ export function UrlForm({
             requirement="Optional"
             hint="Only visible in the dashboard"
             error={
-              field.state.meta.errors[0]
-                ? formatFormError(field.state.meta.errors[0])
-                : undefined
+              field.state.meta.errors[0] ? formatFormError(field.state.meta.errors[0]) : undefined
             }
           >
             <Input
@@ -635,9 +601,7 @@ export function UrlForm({
             htmlFor={field.name}
             requirement="Optional"
             error={
-              field.state.meta.errors[0]
-                ? formatFormError(field.state.meta.errors[0])
-                : undefined
+              field.state.meta.errors[0] ? formatFormError(field.state.meta.errors[0]) : undefined
             }
           >
             <Input
@@ -765,12 +729,8 @@ export function UrlForm({
       {pane === "link" ? (
         useWideLayout ? (
           <div className="grid min-w-0 gap-6 md:grid-cols-2">
-            <div className="grid min-w-0 content-start gap-4">
-              {destinationFields}
-            </div>
-            <div className="grid min-w-0 content-start gap-4">
-              {hostAndSlugFields}
-            </div>
+            <div className="grid min-w-0 content-start gap-4">{destinationFields}</div>
+            <div className="grid min-w-0 content-start gap-4">{hostAndSlugFields}</div>
           </div>
         ) : (
           <div className="grid min-w-0 gap-4">
@@ -779,12 +739,7 @@ export function UrlForm({
           </div>
         )
       ) : (
-        <div
-          className={cn(
-            "grid min-w-0 gap-4",
-            useWideLayout && "md:max-w-xl"
-          )}
-        >
+        <div className={cn("grid min-w-0 gap-4", useWideLayout && "md:max-w-xl")}>
           {optionsFields}
         </div>
       )}
@@ -793,7 +748,7 @@ export function UrlForm({
         type="submit"
         className={cn(
           "h-10 rounded-full shadow-[0_0_24px_rgb(249_208_38/0.25)]",
-          useWideLayout ? "md:w-auto md:justify-self-start md:px-8" : "w-full"
+          useWideLayout ? "md:w-auto md:justify-self-start md:px-8" : "w-full",
         )}
         disabled={mutation.isPending || uploading}
       >

@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserAgent, isSocialCrawler } from "@/lib/crawlers";
-import type {
-  ShortUrlAttrs,
-  ShortUrlMetaTag,
-  ShortUrlUnfurl,
-} from "@/lib/models/short-url";
+import type { ShortUrlAttrs, ShortUrlMetaTag, ShortUrlUnfurl } from "@/lib/models/short-url";
 
 export function isPreviewCrawler(request: Request) {
   return isSocialCrawler(getUserAgent(request));
@@ -19,9 +15,7 @@ function escapeHtml(value: string) {
     .replaceAll("'", "&#39;");
 }
 
-export function hasCustomOg(
-  doc: Pick<ShortUrlAttrs, "ogTitle" | "ogDescription" | "ogImageUrl">
-) {
+export function hasCustomOg(doc: Pick<ShortUrlAttrs, "ogTitle" | "ogDescription" | "ogImageUrl">) {
   return Boolean(doc.ogTitle || doc.ogDescription || doc.ogImageUrl);
 }
 
@@ -64,35 +58,23 @@ export function ogPage(
     forwardedUnfurl?: ShortUrlUnfurl | null;
     extraAppLinks?: ShortUrlMetaTag[];
     script?: string;
-  }
+  },
 ) {
   const protectedLink = Boolean(doc.passwordHash);
   // Password-gated links must not emit destination unfurl / App Links metadata.
-  const unfurl = protectedLink
-    ? null
-    : options?.forwardedUnfurl ?? doc.unfurl ?? null;
+  const unfurl = protectedLink ? null : (options?.forwardedUnfurl ?? doc.unfurl ?? null);
   const title =
     protectedLink && !doc.ogTitle
       ? "Protected link · saar.to"
-      : doc.ogTitle ||
-        unfurl?.title ||
-        doc.fileName ||
-        doc.short ||
-        "saar.to";
+      : doc.ogTitle || unfurl?.title || doc.fileName || doc.short || "saar.to";
   const description =
     protectedLink && !doc.ogDescription
       ? "This saar.to link is password protected."
       : doc.ogDescription || unfurl?.description || "A saar.to short link.";
-  const image =
-    protectedLink && !doc.ogImageUrl
-      ? ""
-      : doc.ogImageUrl || unfurl?.image || "";
+  const image = protectedLink && !doc.ogImageUrl ? "" : doc.ogImageUrl || unfurl?.image || "";
   const appLinks = protectedLink
     ? []
-    : uniqueMetaTags([
-        ...(unfurl?.appLinks ?? []),
-        ...(options?.extraAppLinks ?? []),
-      ]);
+    : uniqueMetaTags([...(unfurl?.appLinks ?? []), ...(options?.extraAppLinks ?? [])]);
 
   const lines = [
     "<!doctype html>",
@@ -120,7 +102,7 @@ export function ogPage(
   appendMetaTag(
     lines,
     "twitter:card",
-    unfurl?.twitterCard ?? (image ? "summary_large_image" : "summary")
+    unfurl?.twitterCard ?? (image ? "summary_large_image" : "summary"),
   );
   appendMetaTag(lines, "twitter:url", canonical);
   appendMetaTag(lines, "twitter:title", title);

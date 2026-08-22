@@ -57,20 +57,20 @@ Each successful public redirect (`GET /{code}` for a non-expired link) inserts o
 
 ### Fields stored
 
-| Field | Source |
-|-------|--------|
-| `shortUrlId` | link `_id` |
-| `userId` | link owner (denormalized) |
-| `short` | slug (denormalized) |
-| `createdAt` | server time |
-| `ip` | `x-forwarded-for` (first hop), else `x-real-ip`, else socket |
-| `userAgent` | `user-agent` header, raw |
-| `referrer` | `referer` header, raw (may be empty) |
-| `acceptLanguage` | `accept-language` header |
-| `country`, `region`, `city` | `x-vercel-ip-country`, `x-vercel-ip-country-region`, `x-vercel-ip-city`, or `cf-ipcountry` when present; otherwise empty |
-| `browser`, `browserVersion`, `os`, `osVersion`, `deviceType` | parsed from UA (`ua-parser-js`) |
-| `isBot` | UA parser `bot` / known crawler family |
-| `visitorKey` | `sha256(ip + "\n" + userAgent)` hex, first 32 chars |
+| Field                                                        | Source                                                                                                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `shortUrlId`                                                 | link `_id`                                                                                                               |
+| `userId`                                                     | link owner (denormalized)                                                                                                |
+| `short`                                                      | slug (denormalized)                                                                                                      |
+| `createdAt`                                                  | server time                                                                                                              |
+| `ip`                                                         | `x-forwarded-for` (first hop), else `x-real-ip`, else socket                                                             |
+| `userAgent`                                                  | `user-agent` header, raw                                                                                                 |
+| `referrer`                                                   | `referer` header, raw (may be empty)                                                                                     |
+| `acceptLanguage`                                             | `accept-language` header                                                                                                 |
+| `country`, `region`, `city`                                  | `x-vercel-ip-country`, `x-vercel-ip-country-region`, `x-vercel-ip-city`, or `cf-ipcountry` when present; otherwise empty |
+| `browser`, `browserVersion`, `os`, `osVersion`, `deviceType` | parsed from UA (`ua-parser-js`)                                                                                          |
+| `isBot`                                                      | UA parser `bot` / known crawler family                                                                                   |
+| `visitorKey`                                                 | `sha256(ip + "\n" + userAgent)` hex, first 32 chars                                                                      |
 
 Do not store cookies or request bodies. Truncate oversized headers (UA/referrer/language) to 1k chars.
 

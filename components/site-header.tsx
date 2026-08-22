@@ -10,12 +10,7 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur-md">
-      <div
-        className={cn(
-          PAGE_CONTAINER_CLASS,
-          "flex h-16 items-center justify-between gap-4"
-        )}
-      >
+      <div className={cn(PAGE_CONTAINER_CLASS, "flex h-16 items-center justify-between gap-4")}>
         <Link
           href={session ? "/" : "/login"}
           className="flex items-center gap-2.5 font-heading text-lg tracking-tight"
