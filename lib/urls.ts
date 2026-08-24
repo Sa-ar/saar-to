@@ -10,9 +10,15 @@ import {
   parseShortUrlKind,
   type ShortUrlKind,
 } from "@/lib/kinds";
-import type { DailyClick, ShortUrlDto } from "@/lib/types";
+import type { DailyClick, ShortUrlDto, ShortUrlTarget } from "@/lib/types";
+import { FILE_DISPOSITION, FILE_SOURCE, SHORT_URL_TARGET } from "@/lib/link-enums";
+import { MONGO_ERROR } from "@/lib/mongo-errors";
+import { USER_ROLE } from "@/lib/user-role";
 
 const OBJECT_ID_RE = /^[a-fA-F0-9]{24}$/;
+
+/** Production apex. Prefer `getBaseUrl()` at runtime. */
+export const APEX_ORIGIN = "https://saar.to";
 
 export function getBaseUrl(request?: Request) {
   if (process.env.NEXT_PUBLIC_BASE_URL) {
@@ -27,7 +33,7 @@ export function getBaseUrl(request?: Request) {
     return new URL(request.url).origin;
   }
 
-  return "https://saar.to";
+  return APEX_ORIGIN;
 }
 
 export function shortUrlKind(
@@ -38,8 +44,8 @@ export function shortUrlKind(
 
 export function shortUrlTarget(
   doc: Pick<ShortUrlAttrs, "target"> | { target?: string | null },
-): "url" | "file" {
-  return doc.target === "file" ? "file" : "url";
+): ShortUrlTarget {
+  return doc.target === SHORT_URL_TARGET.FILE ? SHORT_URL_TARGET.FILE : SHORT_URL_TARGET.URL;
 }
 
 export { conflictingKinds } from "@/lib/kinds";
@@ -84,15 +90,18 @@ export function serializeShortUrl(
     kind,
     target: shortUrlTarget(doc),
     disposition:
-      doc.disposition === "attachment"
-        ? "attachment"
-        : doc.disposition === "inline"
-          ? "inline"
+      doc.disposition === FILE_DISPOSITION.ATTACHMENT
+        ? FILE_DISPOSITION.ATTACHMENT
+        : doc.disposition === FILE_DISPOSITION.INLINE
+          ? FILE_DISPOSITION.INLINE
           : null,
     fileName: doc.fileName ?? null,
     contentType: doc.contentType ?? null,
     fileSize: doc.fileSize ?? null,
-    fileSource: doc.fileSource === "blob" || doc.fileSource === "external" ? doc.fileSource : null,
+    fileSource:
+      doc.fileSource === FILE_SOURCE.BLOB || doc.fileSource === FILE_SOURCE.EXTERNAL
+        ? doc.fileSource
+        : null,
     note: doc.note ?? null,
     createdByName: extras?.createdByName ?? null,
     hasPassword: Boolean(doc.passwordHash),
@@ -142,7 +151,7 @@ export function findAccessibleShortUrl(
   userId: string,
   role: string | null | undefined,
 ) {
-  if (role === "owner") {
+  if (role === USER_ROLE.OWNER) {
     return findShortUrl(id);
   }
 
@@ -159,7 +168,7 @@ export function isDuplicateKeyError(error: unknown) {
     typeof error === "object" &&
     error !== null &&
     "code" in error &&
-    (error as { code: unknown }).code === 11000
+    error.code === MONGO_ERROR.DUPLICATE_KEY
   );
 }
 

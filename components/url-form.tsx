@@ -27,6 +27,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  FILE_DISPOSITION,
+  FILE_SOURCE,
+  FORM_LAYOUT,
+  FORM_PANE,
+  SHORT_URL_TARGET,
+  URL_FORM_FIELD,
+  type FormLayout,
+  type FormPane,
+} from "@/lib/link-enums";
+import { LIMITS } from "@/lib/limits";
 
 const apexHost =
   typeof window !== "undefined"
@@ -41,14 +52,14 @@ const apexHost =
       })()
     : "saar.to";
 
-const LINK_ISSUE_PATHS = new Set([
-  "fullUrl",
-  "slug",
-  "kind",
-  "target",
-  "fileName",
-  "contentType",
-  "fileSource",
+const LINK_ISSUE_PATHS = new Set<string>([
+  URL_FORM_FIELD.FULL_URL,
+  URL_FORM_FIELD.SLUG,
+  URL_FORM_FIELD.KIND,
+  URL_FORM_FIELD.TARGET,
+  URL_FORM_FIELD.FILE_NAME,
+  URL_FORM_FIELD.CONTENT_TYPE,
+  URL_FORM_FIELD.FILE_SOURCE,
 ]);
 
 function guessContentType(name: string) {
@@ -92,8 +103,6 @@ type FormValues = {
   ogDescription: string;
   ogImageUrl: string;
 };
-
-type FormPane = "link" | "options";
 
 function Segmented<T extends string>({
   value,
@@ -163,6 +172,7 @@ function HostToggle({
         id={id}
         type="button"
         role="switch"
+        aria-label={label}
         aria-checked={checked}
         disabled={disabled}
         className={cn(
@@ -193,14 +203,14 @@ export function UrlForm({
   isOwner?: boolean;
   url?: ShortUrlDto;
   /** page = two-column create layout; compact = edit dialog */
-  layout?: "page" | "compact";
+  layout?: FormLayout | "compact";
 }) {
   const isEdit = Boolean(url);
   const queryClient = useQueryClient();
   const schema = isEdit ? editUrlSchema : createUrlSchema;
   const [uploading, setUploading] = useState(false);
-  const [pane, setPane] = useState<FormPane>("link");
-  const [pasteFileUrl, setPasteFileUrl] = useState(url?.fileSource === "external");
+  const [pane, setPane] = useState<FormPane>(FORM_PANE.LINK);
+  const [pasteFileUrl, setPasteFileUrl] = useState(url?.fileSource === FILE_SOURCE.EXTERNAL);
 
   const mutation = useMutation({
     mutationFn: async (value: FormValues) => {
@@ -233,7 +243,7 @@ export function UrlForm({
         : saved.shortUrl;
       if (isEdit) {
         toast.success("Link updated", { description });
-      } else if (saved.target === "file") {
+      } else if (saved.target === SHORT_URL_TARGET.FILE) {
         toast.success("File link created", { description });
       } else if (kindHasSubdomain(saved.kind)) {
         toast.success("Premium link created", { description });
@@ -255,12 +265,12 @@ export function UrlForm({
       slug: url?.short ?? "",
       expiresAt: url ? toDatetimeLocalValue(url.expiresAt) : "",
       kind: url?.kind ?? SHORT_URL_KIND.PATH,
-      target: url?.target ?? ("url" as ShortUrlTarget),
-      disposition: url?.disposition ?? ("inline" as FileDisposition),
+      target: url?.target ?? SHORT_URL_TARGET.URL,
+      disposition: url?.disposition ?? FILE_DISPOSITION.INLINE,
       fileName: url?.fileName ?? "",
       contentType: url?.contentType ?? "",
       fileSize: url?.fileSize ?? 0,
-      fileSource: url?.fileSource ?? ("" as FileSource | ""),
+      fileSource: url?.fileSource ?? "",
       note: url?.note ?? "",
       password: "",
       removePassword: false as boolean,
@@ -274,14 +284,14 @@ export function UrlForm({
         const hitLink = parsed.error.issues.some((issue) =>
           LINK_ISSUE_PATHS.has(String(issue.path[0] ?? "")),
         );
-        setPane(hitLink ? "link" : "options");
+        setPane(hitLink ? FORM_PANE.LINK : FORM_PANE.OPTIONS);
         toast.error(parsed.error.issues[0]?.message ?? "Check the form and try again");
         return;
       }
       await mutation.mutateAsync(value);
       if (!isEdit) {
         form.reset();
-        setPane("link");
+        setPane(FORM_PANE.LINK);
         setPasteFileUrl(false);
       }
     },
@@ -306,7 +316,7 @@ export function UrlForm({
   });
   const pathHost = kindHasPath(kind);
   const subdomainHost = kindHasSubdomain(kind);
-  const isFile = target === "file";
+  const isFile = target === SHORT_URL_TARGET.FILE;
   const trimmedSlug = slug.trim();
   const previewSlug = trimmedSlug.toLowerCase() || "your-subdomain";
   const pathPreviewSlug = trimmedSlug || "your-slug";
@@ -316,7 +326,7 @@ export function UrlForm({
       : undefined;
   const showHostControls = isOwner;
   const slugRequired = subdomainHost || isEdit;
-  const useWideLayout = layout === "page" && !isEdit;
+  const useWideLayout = layout === FORM_LAYOUT.PAGE && !isEdit;
 
   const setHosts = (nextPath: boolean, nextSubdomain: boolean) => {
     if (!nextPath && !nextSubdomain) {
@@ -328,7 +338,7 @@ export function UrlForm({
 
   const applyExternalFileUrl = (value: string) => {
     form.setFieldValue("fullUrl", value);
-    form.setFieldValue("fileSource", "external");
+    form.setFieldValue("fileSource", FILE_SOURCE.EXTERNAL);
     form.setFieldValue("fileName", fileNameFromUrl(value));
     form.setFieldValue("contentType", guessContentType(fileNameFromUrl(value)));
     form.setFieldValue("fileSize", 0);
@@ -340,13 +350,13 @@ export function UrlForm({
       const blob = await upload(file.name, file, {
         access: "public",
         handleUploadUrl: "/api/blob/upload",
-        multipart: file.size > 4_000_000,
+        multipart: file.size > LIMITS.BLOB_MULTIPART_MIN_BYTES,
       });
       form.setFieldValue("fullUrl", blob.url);
       form.setFieldValue("fileName", file.name);
       form.setFieldValue("contentType", file.type || guessContentType(file.name));
       form.setFieldValue("fileSize", file.size);
-      form.setFieldValue("fileSource", "blob");
+      form.setFieldValue("fileSource", FILE_SOURCE.BLOB);
       setPasteFileUrl(false);
       toast.success("File uploaded", { description: file.name });
     } catch (error) {
@@ -381,15 +391,15 @@ export function UrlForm({
             value={field.state.value}
             onChange={(value) => {
               field.handleChange(value);
-              if (value === "url") {
+              if (value === SHORT_URL_TARGET.URL) {
                 form.setFieldValue("fileSource", "");
                 form.setFieldValue("fileName", "");
                 setPasteFileUrl(false);
               }
             }}
             options={[
-              { value: "url", label: "URL" },
-              { value: "file", label: "File" },
+              { value: SHORT_URL_TARGET.URL, label: "URL" },
+              { value: SHORT_URL_TARGET.FILE, label: "File" },
             ]}
           />
         )}
@@ -466,8 +476,8 @@ export function UrlForm({
                 value={field.state.value}
                 onChange={field.handleChange}
                 options={[
-                  { value: "inline", label: "Open in browser" },
-                  { value: "attachment", label: "Force download" },
+                  { value: FILE_DISPOSITION.INLINE, label: "Open in browser" },
+                  { value: FILE_DISPOSITION.ATTACHMENT, label: "Force download" },
                 ]}
               />
             )}
@@ -721,12 +731,12 @@ export function UrlForm({
         value={pane}
         onChange={setPane}
         options={[
-          { value: "link", label: "Link" },
-          { value: "options", label: "Options", mark: hasExtras },
+          { value: FORM_PANE.LINK, label: "Link" },
+          { value: FORM_PANE.OPTIONS, label: "Options", mark: hasExtras },
         ]}
       />
 
-      {pane === "link" ? (
+      {pane === FORM_PANE.LINK ? (
         useWideLayout ? (
           <div className="grid min-w-0 gap-6 md:grid-cols-2">
             <div className="grid min-w-0 content-start gap-4">{destinationFields}</div>

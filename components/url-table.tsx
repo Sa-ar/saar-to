@@ -14,6 +14,7 @@ import {
 import { BarChart3, Check, Copy, Link2, Pencil, QrCode, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteUrl, fetchUrl } from "@/lib/api";
+import { LIMITS } from "@/lib/limits";
 import { isExpiringSoon } from "@/lib/dates";
 import { formatDate } from "@/lib/format";
 import { removeUrlFromCache, urlQueryKey } from "@/lib/query";
@@ -35,6 +36,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SHORT_URL_TARGET, TABLE_SORT } from "@/lib/link-enums";
 import {
   Table,
   TableBody,
@@ -102,7 +104,7 @@ export function UrlTable({
       toast.success("Copied to clipboard", { description: row.shortUrl });
       window.setTimeout(() => {
         setCopiedId((current) => (current === row.id ? null : current));
-      }, 1500);
+      }, LIMITS.COPY_FEEDBACK_MS);
     } catch {
       toast.error("Could not copy to clipboard");
     }
@@ -116,7 +118,8 @@ export function UrlTable({
           enableSorting: false,
           cell: (info) => {
             const row = info.row.original;
-            const label = row.target === "file" ? row.fileName || row.full : row.full;
+            const label =
+              row.target === SHORT_URL_TARGET.FILE ? row.fileName || row.full : row.full;
             return (
               <div className="flex flex-col gap-1">
                 <a
@@ -127,7 +130,7 @@ export function UrlTable({
                 >
                   {label}
                 </a>
-                {row.target === "file" ? (
+                {row.target === SHORT_URL_TARGET.FILE ? (
                   <Badge variant="outline" className="w-fit">
                     File
                   </Badge>
@@ -356,9 +359,9 @@ export function UrlTable({
                           >
                             <table.FlexRender header={header} />
                             <span className="text-muted-foreground">
-                              {header.column.getIsSorted() === "asc"
+                              {header.column.getIsSorted() === TABLE_SORT.ASC
                                 ? "↑"
-                                : header.column.getIsSorted() === "desc"
+                                : header.column.getIsSorted() === TABLE_SORT.DESC
                                   ? "↓"
                                   : ""}
                             </span>

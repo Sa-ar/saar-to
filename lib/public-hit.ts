@@ -15,6 +15,8 @@ import { getApexOrigin, vanityShortUrl } from "@/lib/hosts";
 import { SHORT_URL_KIND, type PublicHitKind } from "@/lib/kinds";
 import { shortUrlTarget } from "@/lib/urls";
 import { isUnfurlStale, refreshShortUrlUnfurl } from "@/lib/unfurl";
+import { SHORT_URL_TARGET, DEVICE_PLATFORM } from "@/lib/link-enums";
+import { HTTP_METHOD, HTTP_STATUS } from "@/lib/http";
 
 function canonicalUrl(kind: PublicHitKind, code: string) {
   return kind === SHORT_URL_KIND.SUBDOMAIN
@@ -22,7 +24,7 @@ function canonicalUrl(kind: PublicHitKind, code: string) {
     : `${getApexOrigin()}/${encodeURIComponent(code)}`;
 }
 
-function redirectTo(location: string, status = 302) {
+function redirectTo(location: string, status = HTTP_STATUS.FOUND) {
   return new Response(null, {
     status,
     headers: { location },
@@ -85,9 +87,9 @@ export async function handlePublicRequest(request: Request, code: string, kind: 
   const action = unlockActionPath(kind, doc.short);
   const canonical = canonicalUrl(kind, doc.short);
 
-  if (request.method === "POST") {
+  if (request.method === HTTP_METHOD.POST) {
     if (!doc.passwordHash) {
-      return NextResponse.redirect(canonical, 303);
+      return NextResponse.redirect(canonical, HTTP_STATUS.SEE_OTHER);
     }
 
     const form = await request.formData().catch(() => null);
@@ -99,19 +101,19 @@ export async function handlePublicRequest(request: Request, code: string, kind: 
     }
 
     const redirectTarget = canonical;
-    const response = NextResponse.redirect(redirectTarget, 303);
+    const response = NextResponse.redirect(redirectTarget, HTTP_STATUS.SEE_OTHER);
     setUnlockCookie(response, doc._id.toString());
     return response;
   }
 
-  if (request.method === "HEAD") {
-    return new Response(null, { status: 200 });
+  if (request.method === HTTP_METHOD.HEAD) {
+    return new Response(null, { status: HTTP_STATUS.OK });
   }
 
   const locked = needsPassword(doc, request);
   const preview = isPreviewCrawler(request);
   const target = shortUrlTarget(doc);
-  const deepLinkMatch = target === "url" ? getDeepLinkMatch(doc.full) : null;
+  const deepLinkMatch = target === SHORT_URL_TARGET.URL ? getDeepLinkMatch(doc.full) : null;
 
   // Locked links: crawlers get safe placeholder OG only — never destination
   // App Links, forwarded unfurl, or deep-link metadata.
@@ -123,7 +125,7 @@ export async function handlePublicRequest(request: Request, code: string, kind: 
     return ogPage(doc, canonical, { extraAppLinks: deepLinkMatch?.appLinks });
   }
 
-  if (preview && target === "url") {
+  if (preview && target === SHORT_URL_TARGET.URL) {
     const unfurl = await getPreviewUnfurl(doc);
     if (unfurl) {
       return ogPage(doc, canonical, {
@@ -139,14 +141,14 @@ export async function handlePublicRequest(request: Request, code: string, kind: 
     return unlockPage(label, action);
   }
 
-  if (target === "url") {
+  if (target === SHORT_URL_TARGET.URL) {
     const platform = getClientPlatform(getUserAgent(request));
-    if (deepLinkMatch?.androidIntentUrl && platform === "android") {
+    if (deepLinkMatch?.androidIntentUrl && platform === DEVICE_PLATFORM.ANDROID) {
       await recordPublicHit(request, doc);
       return redirectTo(deepLinkMatch.androidIntentUrl);
     }
 
-    if (deepLinkMatch?.iosUrl && platform === "ios") {
+    if (deepLinkMatch?.iosUrl && platform === DEVICE_PLATFORM.IOS) {
       await recordPublicHit(request, doc);
       return ogPage(doc, canonical, {
         extraAppLinks: deepLinkMatch.appLinks,
@@ -157,9 +159,9 @@ export async function handlePublicRequest(request: Request, code: string, kind: 
 
   await recordPublicHit(request, doc);
 
-  if (target === "file") {
+  if (target === SHORT_URL_TARGET.FILE) {
     return serveFile(doc);
   }
 
-  return NextResponse.redirect(doc.full, 302);
+  return NextResponse.redirect(doc.full, HTTP_STATUS.FOUND);
 }

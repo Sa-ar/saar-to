@@ -6,6 +6,7 @@ import { ShortUrl } from "@/lib/models/short-url";
 import { isOwnerRole } from "@/lib/roles";
 import type { BreakdownRow, ClickEventDto, LinkClicksDto, StatsOverviewDto } from "@/lib/types";
 import type { ShortUrlAttrs } from "@/lib/models/short-url";
+import { LIMITS } from "@/lib/limits";
 
 function ownerFilter(userId: string, role: string | null | undefined) {
   if (isOwnerRole(role)) {
@@ -83,7 +84,7 @@ export async function linkClickStats(
 ): Promise<LinkClicksDto> {
   const shortUrlId = doc._id;
   const since = new Date();
-  since.setUTCDate(since.getUTCDate() - 13);
+  since.setUTCDate(since.getUTCDate() - (LIMITS.STATS_TREND_DAYS - 1));
   since.setUTCHours(0, 0, 0, 0);
 
   const match: Record<string, unknown> = { shortUrlId };
@@ -93,7 +94,7 @@ export async function linkClickStats(
 
   const [uniqueVisitors, recent, filteredDaily, anyDaily] = await Promise.all([
     ClickEvent.distinct("visitorKey", match),
-    ClickEvent.find(match).sort({ createdAt: -1 }).limit(50),
+    ClickEvent.find(match).sort({ createdAt: -1 }).limit(LIMITS.STATS_RECENT_CLICKS),
     ClickEvent.aggregate<{ _id: string; count: number }>([
       { $match: { ...match, createdAt: { $gte: since } } },
       {
@@ -166,7 +167,7 @@ export async function linkClickStats(
   return {
     uniqueVisitors: uniqueVisitors.length,
     clicks: excludeBots ? await ClickEvent.countDocuments(match) : doc.clicks,
-    daily: mergeDailySeries(eventDays, eventCounts, doc.dailyClicks ?? [], 14),
+    daily: mergeDailySeries(eventDays, eventCounts, doc.dailyClicks ?? [], LIMITS.STATS_TREND_DAYS),
     breakdowns: {
       country: toBreakdown(countries),
       referrer: toBreakdown(referrers),

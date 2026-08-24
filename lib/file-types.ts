@@ -1,6 +1,8 @@
 import type { FileDisposition } from "@/lib/types";
+import { FILE_DISPOSITION } from "@/lib/link-enums";
+import { MAX_FILE_BYTES } from "@/lib/limits";
 
-export const MAX_FILE_BYTES = 15 * 1024 * 1024;
+export { MAX_FILE_BYTES };
 
 export const ALLOWED_FILE_TYPES = [
   "application/pdf",
@@ -42,7 +44,9 @@ export function normalizeDisposition(
   contentType: string,
 ): FileDisposition {
   if (mustForceAttachment(contentType)) {
-    return "attachment";
+    return FILE_DISPOSITION.ATTACHMENT;
   }
-  return disposition === "attachment" ? "attachment" : "inline";
+  return disposition === FILE_DISPOSITION.ATTACHMENT
+    ? FILE_DISPOSITION.ATTACHMENT
+    : FILE_DISPOSITION.INLINE;
 }

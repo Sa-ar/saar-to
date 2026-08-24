@@ -3,6 +3,7 @@ import { requireSession } from "@/lib/auth";
 import { parseExcludeBots } from "@/lib/clicks";
 import { connectDB } from "@/lib/db";
 import { statsOverview } from "@/lib/stats";
+import { HTTP_STATUS } from "@/lib/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   const session = await requireSession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: HTTP_STATUS.UNAUTHORIZED });
   }
 
   await connectDB();

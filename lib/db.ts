@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { ClickEvent } from "@/lib/models/click-event";
 import { ShortUrl } from "@/lib/models/short-url";
+import { MONGO_ERROR, MONGO_INDEX } from "@/lib/mongo-errors";
 import { ensureUserRoles } from "@/lib/roles";
 
 interface MongooseCache {
@@ -29,16 +30,14 @@ export const MONGODB_DB_NAME = "url-shortener";
 async function ensureShortUrlIndexes() {
   try {
     const indexes = await ShortUrl.collection.indexes();
-    if (indexes.some((index) => index.name === "short_1")) {
-      await ShortUrl.collection.dropIndex("short_1");
+    if (indexes.some((index) => index.name === MONGO_INDEX.LEGACY_SHORT)) {
+      await ShortUrl.collection.dropIndex(MONGO_INDEX.LEGACY_SHORT);
     }
   } catch (error) {
     const code =
-      typeof error === "object" && error !== null && "code" in error
-        ? (error as { code: unknown }).code
-        : undefined;
+      typeof error === "object" && error !== null && "code" in error ? error.code : undefined;
     // 26 = NamespaceNotFound (empty database)
-    if (code !== 26) {
+    if (code !== MONGO_ERROR.NAMESPACE_NOT_FOUND) {
       throw error;
     }
   }

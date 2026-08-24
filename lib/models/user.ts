@@ -1,6 +1,7 @@
 import { model, models, Schema, type Model } from "mongoose";
+import { USER_ROLE, type UserRole } from "@/lib/user-role";
 
-export type UserRole = "owner" | "member";
+export type { UserRole };
 
 export type UserAttrs = {
   name: string;
@@ -24,9 +25,9 @@ const userSchema = new Schema<UserAttrs>(
     passwordHash: { type: String, required: true },
     role: {
       type: String,
-      enum: ["owner", "member"],
+      enum: [USER_ROLE.OWNER, USER_ROLE.MEMBER],
       required: true,
-      default: "member",
+      default: USER_ROLE.MEMBER,
     },
   },
   { timestamps: true },

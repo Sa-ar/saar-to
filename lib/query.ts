@@ -1,15 +1,21 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { ShortUrlDto } from "@/lib/types";
 
-export const urlsQueryKey = ["urls"] as const;
-export const overviewStatsQueryKey = (excludeBots: boolean) =>
-  ["overview-stats", excludeBots] as const;
-export const urlQueryKey = (id: string) => ["url", id] as const;
-export const urlClicksQueryKey = (id: string, excludeBots: boolean) =>
-  ["url-clicks", id, excludeBots] as const;
+export const QUERY_SCOPE = {
+  URLS: "urls",
+  OVERVIEW_STATS: "overview-stats",
+  URL: "url",
+  URL_CLICKS: "url-clicks",
+} as const;
 
-export const QUERY_STALE_TIME_MS = 5 * 60 * 1000;
-export const QUERY_GC_TIME_MS = 30 * 60 * 1000;
+export const urlsQueryKey = [QUERY_SCOPE.URLS] as const;
+export const overviewStatsQueryKey = (excludeBots: boolean) =>
+  [QUERY_SCOPE.OVERVIEW_STATS, excludeBots] as const;
+export const urlQueryKey = (id: string) => [QUERY_SCOPE.URL, id] as const;
+export const urlClicksQueryKey = (id: string, excludeBots: boolean) =>
+  [QUERY_SCOPE.URL_CLICKS, id, excludeBots] as const;
+
+export { QUERY_GC_TIME_MS, QUERY_STALE_TIME_MS } from "@/lib/limits";
 export const QUERY_PERSIST_KEY = "saar-to.query-cache";
 
 export function seedUrlCaches(queryClient: QueryClient, urls: ShortUrlDto[]) {

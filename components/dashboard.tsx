@@ -14,6 +14,7 @@ import { UrlOverview } from "@/components/url-overview";
 import { UrlTable } from "@/components/url-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LINK_STATUS_FILTER } from "@/lib/link-enums";
 import {
   Select,
   SelectContent,
@@ -24,7 +25,7 @@ import {
 
 export function Dashboard({ isOwner = false }: { isOwner?: boolean }) {
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<LinkStatusFilter>("all");
+  const [status, setStatus] = useState<LinkStatusFilter>(LINK_STATUS_FILTER.ALL);
   const [hideBots, setHideBots] = useState(false);
   const query = useQuery({
     queryKey: urlsQueryKey,
@@ -40,7 +41,7 @@ export function Dashboard({ isOwner = false }: { isOwner?: boolean }) {
     () => filterUrls(allUrls, search, status),
     [allUrls, search, status],
   );
-  const hasActiveFilters = search.trim() !== "" || status !== "all";
+  const hasActiveFilters = search.trim() !== "" || status !== LINK_STATUS_FILTER.ALL;
 
   return (
     <PageShell className="gap-6">
@@ -78,7 +79,11 @@ export function Dashboard({ isOwner = false }: { isOwner?: boolean }) {
         <Select
           value={status}
           onValueChange={(value) => {
-            if (value === "all" || value === "active" || value === "expired") {
+            if (
+              value === LINK_STATUS_FILTER.ALL ||
+              value === LINK_STATUS_FILTER.ACTIVE ||
+              value === LINK_STATUS_FILTER.EXPIRED
+            ) {
               setStatus(value);
             }
           }}
@@ -87,9 +92,9 @@ export function Dashboard({ isOwner = false }: { isOwner?: boolean }) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
+            <SelectItem value={LINK_STATUS_FILTER.ALL}>All</SelectItem>
+            <SelectItem value={LINK_STATUS_FILTER.ACTIVE}>Active</SelectItem>
+            <SelectItem value={LINK_STATUS_FILTER.EXPIRED}>Expired</SelectItem>
           </SelectContent>
         </Select>
         <div className="lg:ml-auto lg:w-72">
@@ -113,7 +118,7 @@ export function Dashboard({ isOwner = false }: { isOwner?: boolean }) {
         }}
         onClearFilters={() => {
           setSearch("");
-          setStatus("all");
+          setStatus(LINK_STATUS_FILTER.ALL);
         }}
       />
     </PageShell>

@@ -1,5 +1,23 @@
 import type { ShortUrlMetaTag } from "@/lib/models/short-url";
 
+const YOUTUBE_PATH = {
+  SHORTS: "shorts",
+  LIVE: "live",
+} as const;
+
+const SPOTIFY_RESOURCE = {
+  TRACK: "track",
+  ALBUM: "album",
+  PLAYLIST: "playlist",
+  ARTIST: "artist",
+  SHOW: "show",
+  EPISODE: "episode",
+} as const;
+
+const TWITTER_PATH = {
+  STATUS: "status",
+} as const;
+
 export type DeepLinkMatch = {
   iosUrl?: string;
   androidIntentUrl?: string;
@@ -70,7 +88,7 @@ function matchYouTube(url: URL): DeepLinkMatch | null {
       videoId = url.searchParams.get("v") ?? "";
     } else {
       const parts = url.pathname.split("/").filter(Boolean);
-      if (parts[0] === "shorts" || parts[0] === "live") {
+      if (parts[0] === YOUTUBE_PATH.SHORTS || parts[0] === YOUTUBE_PATH.LIVE) {
         videoId = parts[1] ?? "";
       }
     }
@@ -106,7 +124,7 @@ function matchSpotify(url: URL): DeepLinkMatch | null {
     return null;
   }
 
-  const supported = new Set(["track", "album", "playlist", "artist", "show", "episode"]);
+  const supported = new Set<string>(Object.values(SPOTIFY_RESOURCE));
   if (!supported.has(resource)) {
     return null;
   }
@@ -135,7 +153,7 @@ function matchTwitter(url: URL): DeepLinkMatch | null {
 
   const parts = url.pathname.split("/").filter(Boolean);
   const screenName = parts[0];
-  const tweetId = parts[1] === "status" ? parts[2] : undefined;
+  const tweetId = parts[1] === TWITTER_PATH.STATUS ? parts[2] : undefined;
   const iosUrl =
     tweetId && screenName
       ? `twitter://status?id=${encodeURIComponent(tweetId)}`

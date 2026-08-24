@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUrl, fetchUrlClicks, isApiError } from "@/lib/api";
+import { HTTP_STATUS } from "@/lib/http";
 import { formatDate } from "@/lib/format";
 import { urlQueryKey } from "@/lib/query";
 import { BreakdownList, ClicksChart } from "@/components/clicks-chart";
@@ -52,7 +53,7 @@ export function UrlStats({ code }: { code: string }) {
   }
 
   if (query.isError) {
-    const notFound = isApiError(query.error) && query.error.status === 404;
+    const notFound = isApiError(query.error) && query.error.status === HTTP_STATUS.NOT_FOUND;
 
     if (notFound) {
       return (

@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { getApexOrigin, parseVanityLabel } from "@/lib/hosts";
+import { HTTP_STATUS } from "@/lib/http";
 
 function isProtectedPath(pathname: string) {
   return (
@@ -40,7 +41,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL(pathname + request.nextUrl.search, apex));
     }
 
-    return new NextResponse("Not Found", { status: 404 });
+    return new NextResponse("Not Found", { status: HTTP_STATUS.NOT_FOUND });
   }
 
   if (!isProtectedPath(pathname)) {
@@ -57,7 +58,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/")) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: HTTP_STATUS.UNAUTHORIZED });
   }
 
   const loginUrl = new URL("/login", request.url);

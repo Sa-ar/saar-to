@@ -23,6 +23,7 @@ export function HideBotsToggle({
         id="hide-bots-toggle"
         type="button"
         role="switch"
+        aria-label="Hide bots"
         aria-checked={checked}
         className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors ${
           checked ? "bg-primary" : "bg-muted-foreground/30"

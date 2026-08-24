@@ -5,11 +5,12 @@ import { User } from "@/lib/models/user";
 import { isOwnerRole } from "@/lib/roles";
 import { findAccessibleShortUrl, serializeShortUrl } from "@/lib/urls";
 import type { ShortUrlDto } from "@/lib/types";
+import { USER_ROLE } from "@/lib/user-role";
 
 export const URLS_CACHE_TAG = "urls";
 
 function viewerKey(userId: string, role: string | null | undefined) {
-  return isOwnerRole(role) ? "owner" : userId;
+  return isOwnerRole(role) ? USER_ROLE.OWNER : userId;
 }
 
 function toDto(
@@ -38,9 +39,9 @@ async function creatorNames(docs: Array<{ userId: { toString(): string } }>, own
 const getCachedUrlList = unstable_cache(
   async (key: string, userId: string, baseUrl: string) => {
     await connectDB();
-    const filter = key === "owner" ? {} : { userId };
+    const filter = key === USER_ROLE.OWNER ? {} : { userId };
     const docs = await ShortUrl.find(filter).sort({ createdAt: -1 }).lean();
-    const names = await creatorNames(docs, key === "owner");
+    const names = await creatorNames(docs, key === USER_ROLE.OWNER);
     return docs.map((doc) => toDto(doc, baseUrl, names.get(doc.userId.toString()) ?? null));
   },
   ["url-list"],
@@ -75,7 +76,7 @@ export function loadUrl(
   role: string | null | undefined,
   baseUrl: string,
 ) {
-  return getCachedUrl(id, userId, role ?? "member", baseUrl);
+  return getCachedUrl(id, userId, role ?? USER_ROLE.MEMBER, baseUrl);
 }
 
 export function revalidateUrlCaches() {

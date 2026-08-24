@@ -4,12 +4,16 @@ import {
   type ShortUrlMetaTag,
   type ShortUrlUnfurl,
 } from "@/lib/models/short-url";
+import { HTTP_REDIRECT } from "@/lib/http";
+import { LIMITS, MAX_UNFURL_BYTES, UNFURL_TTL_MS } from "@/lib/limits";
 import { fetchPinned, resolveSafeOutboundUrl } from "@/lib/ssrf";
 
-const MAX_UNFURL_BYTES = 512 * 1024;
 const REDIRECT_LIMIT = 5;
-const STALE_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
 const REQUEST_TIMEOUT_MS = 2_500;
+
+const HTML_META = {
+  APPLE_ITUNES_APP: "apple-itunes-app",
+} as const;
 
 type RefreshOptions = {
   timeoutMs?: number;
@@ -79,7 +83,7 @@ function parseMetaTagMap(html: string) {
 
     const normalizedKey = key.toLowerCase();
     metaTags.set(normalizedKey, content);
-    if (normalizedKey.startsWith("al:") || normalizedKey === "apple-itunes-app") {
+    if (normalizedKey.startsWith("al:") || normalizedKey === HTML_META.APPLE_ITUNES_APP) {
       rawAppLinks.push({ key: normalizedKey, value: content });
     }
   }
@@ -144,7 +148,7 @@ async function fetchHtml(input: URL, timeoutMs: number): Promise<FetchHtmlResult
       clearTimeout(timer);
     }
 
-    if (response.status >= 300 && response.status < 400) {
+    if (response.status >= HTTP_REDIRECT.MIN && response.status < HTTP_REDIRECT.MAX) {
       const location = response.headers.get("location");
       if (!location) {
         throw new Error("Redirect missing location header");
@@ -190,14 +194,14 @@ function toUnfurl(html: string, finalUrl: URL): ShortUrlUnfurl | null {
     description,
     image,
     imageAlt: truncate(metaTags.get("og:image:alt")) ?? truncate(metaTags.get("twitter:image:alt")),
-    imageWidth: truncate(metaTags.get("og:image:width"), 50),
-    imageHeight: truncate(metaTags.get("og:image:height"), 50),
+    imageWidth: truncate(metaTags.get("og:image:width"), LIMITS.UNFURL_DIM_MAX),
+    imageHeight: truncate(metaTags.get("og:image:height"), LIMITS.UNFURL_DIM_MAX),
     siteName: truncate(metaTags.get("og:site_name")),
-    type: truncate(metaTags.get("og:type"), 100),
-    twitterCard: truncate(metaTags.get("twitter:card"), 100),
+    type: truncate(metaTags.get("og:type"), LIMITS.UNFURL_TOKEN_MAX),
+    twitterCard: truncate(metaTags.get("twitter:card"), LIMITS.UNFURL_TOKEN_MAX),
     video: resolveMaybeUrl(metaTags.get("og:video"), finalUrl),
     videoSecureUrl: resolveMaybeUrl(metaTags.get("og:video:secure_url"), finalUrl),
-    videoType: truncate(metaTags.get("og:video:type"), 100),
+    videoType: truncate(metaTags.get("og:video:type"), LIMITS.UNFURL_TOKEN_MAX),
     appLinks: rawAppLinks,
     finalUrl: finalUrl.toString(),
     fetchedAt: new Date(),
@@ -209,7 +213,7 @@ export function isUnfurlStale(unfurl: ShortUrlUnfurl | null | undefined) {
     return true;
   }
 
-  return Date.now() - new Date(unfurl.fetchedAt).getTime() > STALE_AFTER_MS;
+  return Date.now() - new Date(unfurl.fetchedAt).getTime() > UNFURL_TTL_MS;
 }
 
 export async function fetchUnfurlMetadata(

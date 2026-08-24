@@ -4,11 +4,10 @@ export type DailyClick = {
 };
 
 import type { ShortUrlKind } from "@/lib/kinds";
+import type { FileDisposition, FileSource, ShortUrlTarget } from "@/lib/link-enums";
 
 export type { ShortUrlKind };
-export type ShortUrlTarget = "url" | "file";
-export type FileDisposition = "inline" | "attachment";
-export type FileSource = "blob" | "external";
+export type { FileDisposition, FileSource, ShortUrlTarget };
 
 export type BreakdownRow = {
   label: string;

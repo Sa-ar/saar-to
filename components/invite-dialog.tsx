@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
-import { createInvite, fetchInvites, revokeInvite, type InviteDto } from "@/lib/api";
+import { createInvite, fetchInvites, revokeInvite } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { EmptyState, ErrorState, LoadingState } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
@@ -104,7 +104,7 @@ export function InviteDialog() {
             />
           ) : (
             <ul className="space-y-2">
-              {(invitesQuery.data as InviteDto[]).map((invite) => (
+              {invitesQuery.data.map((invite) => (
                 <li
                   key={invite.id}
                   className="flex min-w-0 items-start justify-between gap-2 overflow-hidden rounded-lg border px-3 py-2"

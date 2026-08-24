@@ -1,8 +1,10 @@
 import { nanoid } from "nanoid";
 import { Invite } from "@/lib/models/invite";
+import { INVITE_TTL_MS, LIMITS } from "@/lib/limits";
 import { getBaseUrl } from "@/lib/urls";
+import { USER_ROLE } from "@/lib/user-role";
 
-export const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+export { INVITE_TTL_MS };
 
 export type InviteDto = {
   id: string;
@@ -29,12 +31,12 @@ export function serializeInvite(
 }
 
 export async function createInvite(createdBy: string, request?: Request) {
-  const token = nanoid(32);
+  const token = nanoid(LIMITS.NANOID_INVITE);
   const expiresAt = new Date(Date.now() + INVITE_TTL_MS);
   const doc = await Invite.create({
     token,
     createdBy,
-    role: "member",
+    role: USER_ROLE.MEMBER,
     expiresAt,
   });
 

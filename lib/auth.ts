@@ -6,6 +6,7 @@ import { connectDB } from "@/lib/db";
 import { User, type UserRole } from "@/lib/models/user";
 import { isOwnerRole } from "@/lib/roles";
 import { loginSchema } from "@/lib/validations/auth";
+import { USER_ROLE } from "@/lib/user-role";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
@@ -36,7 +37,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const role: UserRole = user.role === "owner" ? "owner" : "member";
+        const role: UserRole = user.role === USER_ROLE.OWNER ? USER_ROLE.OWNER : USER_ROLE.MEMBER;
 
         return {
           id: user._id.toString(),
@@ -51,14 +52,14 @@ export const authOptions: NextAuthOptions = {
     jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as { role?: UserRole }).role ?? "member";
+        token.role = (user as { role?: UserRole }).role ?? USER_ROLE.MEMBER;
       }
       return token;
     },
     session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id;
-        session.user.role = token.role === "owner" ? "owner" : "member";
+        session.user.role = token.role === USER_ROLE.OWNER ? USER_ROLE.OWNER : USER_ROLE.MEMBER;
       }
       return session;
     },

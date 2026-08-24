@@ -4,9 +4,11 @@ import { UAParser } from "ua-parser-js";
 import { isBot as uaIsBot } from "ua-parser-js/bot-detection";
 import { Bots } from "ua-parser-js/extensions";
 import { utcDateString } from "@/lib/dates";
+import { LIMITS } from "@/lib/limits";
 import { ClickEvent } from "@/lib/models/click-event";
 import type { ShortUrlAttrs } from "@/lib/models/short-url";
 import type { DailyClick } from "@/lib/types";
+import { QUERY_FLAG } from "@/lib/link-enums";
 
 const HEADER_MAX = 1000;
 
@@ -34,7 +36,10 @@ export function clientIp(request: Request) {
 }
 
 export function visitorKey(ip: string, userAgent: string) {
-  return createHash("sha256").update(`${ip}\n${userAgent}`).digest("hex").slice(0, 32);
+  return createHash("sha256")
+    .update(`${ip}\n${userAgent}`)
+    .digest("hex")
+    .slice(0, LIMITS.VISITOR_KEY_HEX);
 }
 
 function parseUserAgent(userAgent: string) {
@@ -102,7 +107,7 @@ export function displayCountry(country: string) {
 
 export function parseExcludeBots(request: Request) {
   const url = new URL(request.url);
-  return url.searchParams.get("excludeBots") === "true";
+  return url.searchParams.get("excludeBots") === QUERY_FLAG.TRUE;
 }
 
 export function mergeDailySeries(

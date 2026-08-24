@@ -1,3 +1,4 @@
+import { HOST_LABEL } from "@/lib/link-enums";
 const DEFAULT_APEX = "saar.to";
 
 /** Apex hostname used for vanity URLs (never a preview host). */
@@ -39,7 +40,7 @@ export function parseVanityLabel(hostHeader: string | null): string | null {
   }
 
   const label = hostname.slice(0, -suffix.length);
-  if (!label || label.includes(".") || label === "www") {
+  if (!label || label.includes(".") || label === HOST_LABEL.WWW) {
     return null;
   }
 

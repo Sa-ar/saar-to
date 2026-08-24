@@ -1,17 +1,24 @@
 import { model, models, Schema, type HydratedDocument, type Model, type Types } from "mongoose";
 import { nanoid } from "nanoid";
 import { SHORT_URL_KIND, SHORT_URL_KIND_VALUES, type ShortUrlKind } from "@/lib/kinds";
+import {
+  FILE_DISPOSITION_VALUES,
+  FILE_SOURCE_VALUES,
+  SHORT_URL_TARGET,
+  SHORT_URL_TARGET_VALUES,
+  type FileDisposition,
+  type FileSource,
+  type ShortUrlTarget,
+} from "@/lib/link-enums";
+import { LIMITS } from "@/lib/limits";
 
 export type { ShortUrlKind } from "@/lib/kinds";
+export type { FileDisposition, FileSource, ShortUrlTarget };
 
 export type DailyClick = {
   date: string;
   count: number;
 };
-
-export type ShortUrlTarget = "url" | "file";
-export type FileDisposition = "inline" | "attachment";
-export type FileSource = "blob" | "external";
 
 export type ShortUrlMetaTag = {
   key: string;
@@ -110,7 +117,7 @@ const shortUrlSchema = new Schema<ShortUrlAttrs>(
     short: {
       type: String,
       required: true,
-      default: () => nanoid(7),
+      default: () => nanoid(LIMITS.NANOID_SLUG),
     },
     kind: {
       type: String,
@@ -120,13 +127,13 @@ const shortUrlSchema = new Schema<ShortUrlAttrs>(
     },
     target: {
       type: String,
-      enum: ["url", "file"],
+      enum: [...SHORT_URL_TARGET_VALUES],
       required: true,
-      default: "url",
+      default: SHORT_URL_TARGET.URL,
     },
     disposition: {
       type: String,
-      enum: ["inline", "attachment"],
+      enum: [...FILE_DISPOSITION_VALUES],
       default: null,
     },
     fileName: { type: String, default: null },
@@ -134,10 +141,10 @@ const shortUrlSchema = new Schema<ShortUrlAttrs>(
     fileSize: { type: Number, default: null },
     fileSource: {
       type: String,
-      enum: ["blob", "external"],
+      enum: [...FILE_SOURCE_VALUES],
       default: null,
     },
-    note: { type: String, default: null, maxlength: 500 },
+    note: { type: String, default: null, maxlength: LIMITS.NOTE_MAX },
     passwordHash: { type: String, default: null },
     ogTitle: { type: String, default: null },
     ogDescription: { type: String, default: null },

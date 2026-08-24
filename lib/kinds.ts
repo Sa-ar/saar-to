@@ -1,7 +1,6 @@
 /**
  * Canonical short-link host kinds. Prefer `SHORT_URL_KIND.*` over string
- * literals — oxlint bans magic `"path"` / `"subdomain"` / `"both"` outside
- * this file.
+ * literals — oxlint flags magic tokens; define values here with `as const`.
  */
 export const SHORT_URL_KIND = {
   PATH: "path",
