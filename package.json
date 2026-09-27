@@ -12,6 +12,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "check": "oxlint && oxfmt --check",
+    "test": "tsx --test lib/validations/url.test.ts",
     "create-user": "tsx scripts/create-user.ts",
     "env:pull-prod": "vercel env pull .env.prod --environment production --yes"
   },

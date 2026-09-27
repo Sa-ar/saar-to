@@ -104,6 +104,17 @@ type FormValues = {
   ogImageUrl: string;
 };
 
+function toUrlSchemaInput(value: FormValues) {
+  return {
+    ...value,
+    fileSize: value.fileSize || undefined,
+    fileSource:
+      value.fileSource === FILE_SOURCE.BLOB || value.fileSource === FILE_SOURCE.EXTERNAL
+        ? value.fileSource
+        : undefined,
+  };
+}
+
 function Segmented<T extends string>({
   value,
   options,
@@ -214,24 +225,7 @@ export function UrlForm({
 
   const mutation = useMutation({
     mutationFn: async (value: FormValues) => {
-      const payload = {
-        fullUrl: value.fullUrl,
-        slug: value.slug,
-        expiresAt: value.expiresAt,
-        kind: value.kind,
-        target: value.target,
-        disposition: value.disposition,
-        fileName: value.fileName,
-        contentType: value.contentType,
-        fileSize: value.fileSize || undefined,
-        fileSource: value.fileSource || undefined,
-        note: value.note,
-        password: value.password,
-        removePassword: value.removePassword,
-        ogTitle: value.ogTitle,
-        ogDescription: value.ogDescription,
-        ogImageUrl: value.ogImageUrl,
-      };
+      const payload = toUrlSchemaInput(value);
       if (url) {
         return updateUrl(url.id, payload);
       }
@@ -279,7 +273,7 @@ export function UrlForm({
       ogImageUrl: url?.ogImageUrl ?? "",
     } satisfies FormValues,
     onSubmit: async ({ value }) => {
-      const parsed = schema.safeParse(value);
+      const parsed = schema.safeParse(toUrlSchemaInput(value));
       if (!parsed.success) {
         const hitLink = parsed.error.issues.some((issue) =>
           LINK_ISSUE_PATHS.has(String(issue.path[0] ?? "")),

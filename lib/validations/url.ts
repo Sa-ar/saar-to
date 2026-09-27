@@ -207,7 +207,11 @@ const baseUrlObject = z.object({
   fileName: z.string().optional(),
   contentType: z.string().optional(),
   fileSize: z.number().optional(),
-  fileSource: z.enum(FILE_SOURCE_VALUES).optional(),
+  // URL-mode forms store "" as an empty sentinel; coerce it so Zod optional enum accepts it.
+  fileSource: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.enum(FILE_SOURCE_VALUES).optional(),
+  ),
   note: z.string().optional(),
   password: z.string().optional(),
   removePassword: z.boolean().optional(),
