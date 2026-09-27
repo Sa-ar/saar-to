@@ -1,7 +1,7 @@
 import { MS_PER_DAY, MS_PER_MINUTE, TIME } from "@/lib/time";
 
 export const LIMITS = {
-  SLUG_MIN: 3,
+  SLUG_MIN: 2,
   SLUG_MAX: 32,
   NAME_MAX: 80,
   NOTE_MAX: 500,

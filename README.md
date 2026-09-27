@@ -159,7 +159,7 @@ Edit an existing link's destination and slug, then try to rename it to a reserve
 
 **Data model.** A `ShortUrl` document stores `userId`, `full` (destination), `short` (unique code), `kind` (`path` | `subdomain`), `clicks`, `expiresAt`, `lastAccessedAt`, and a `dailyClicks[]` array (`{ date, count }`, retained ~30 days).
 
-**Validation.** All slug/URL/expiry rules live in `lib/validations/url.ts` as shared Zod helpers used by both create and edit, so the two paths never drift. Reserved slugs are rejected first, then length (3–32), then the character-set pattern.
+**Validation.** All slug/URL/expiry rules live in `lib/validations/url.ts` as shared Zod helpers used by both create and edit, so the two paths never drift. Reserved slugs are rejected first, then length (2–32), then the character-set pattern. Path slugs may be 2 characters (`saar.to/wa`); subdomain / both still use DNS label rules (letters, digits, hyphens; no underscores).
 
 ---
 
